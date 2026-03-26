@@ -1,19 +1,13 @@
-# Responsiveness Improvement Plan - Admin Dashboard &amp; Others
+# Render Deployment Fix - TODO
 
-## Progress
-- [x] 1. Create TODO.md with plan breakdown
-- [x] 2. Update base.html with enhanced responsive foundation (media queries, fluid grids)
-- [x] 3. Refactor admin_dashboard.html: Add comprehensive media queries, responsive grids/cards/tabs
-- [x] 4. Update student_dashboard.html: Fix main-grid, stat-grid responsive
-- [x] 5. Update instructor_dashboard.html: Same responsive fixes
-- [x] 6. Test all changes: python exam/manage.py runserver + browser devtools (desktop/tablet/mobile)
-- [x] 7. Final review &amp; attempt_completion
-- [ ] 4. Update student_dashboard.html: Fix main-grid, stat-grid responsive
-- [ ] 5. Update instructor_dashboard.html: Same responsive fixes
-- [ ] 6. Test all changes: python exam/manage.py runserver + browser devtools (desktop/tablet/mobile)
-- [ ] 7. Final review &amp; attempt_completion
+## Plan Steps (Approved by user):
+1. [x] Create TODO.md with breakdown
+2. [x] Update exam/proclife: Fix gunicorn command to 'gunicorn exam.examproject.wsgi:application'
+3. [x] Edit exam/examproject/settings.py: Fix MIDDLEWARE comma, consolidate DEBUG/ALLOWED_HOSTS/STATIC_ROOT, add PostgreSQL DATABASES config
+4. [x] Create exam/runtime.txt with 'python-3.14.3'
+6. [ ] attempt_completion with push/deploy instructions
 
 ## Notes
-- Focus: No horizontal scroll, readable text/buttons, proper stacking on mobile
-- Breakpoints: 1200px(4col), 992px(3col), 768px(2col), 480px(1col/mobile-first)
-- Test devices: Desktop, iPad, iPhone 12/ SE
+- After all steps: git add/commit/push to trigger Render redeploy
+- Set DATABASE_URL on Render dashboard after push
+

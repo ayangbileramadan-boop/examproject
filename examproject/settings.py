@@ -1,9 +1,12 @@
+import os
 from pathlib import Path
+import dj_database_url
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-change-this-in-production-examproject-2026'
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
@@ -19,7 +22,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -48,13 +51,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'examproject.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
-
 AUTH_USER_MODEL = 'accounts.User'
 
 LANGUAGE_CODE = 'en-us'
@@ -68,6 +64,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+DATABASES = {
+    'default': dj_database_url.parse(config('DATABASE_URL', default='sqlite://:memory:')),
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -88,10 +88,3 @@ EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 10
 
 DEFAULT_FROM_EMAIL = 'noreply@examsystem.com'
-
-DEBUG = False
-ALLOWED_HOSTS = ["*"]
-
-import os
-STATIC_URL ='/static/'
-STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')

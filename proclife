@@ -1,1 +1,1 @@
-web: gunicorn examsystem.wsgi
+web: gunicorn exam.examproject.wsgi:application
