@@ -43,26 +43,6 @@
     .qa-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .admin-link { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem 1rem; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:10px; color:var(--muted); text-decoration:none; font-size:.8rem; white-space:nowrap; }
     
-    /* Responsive overrides */
-    @media(max-width:992px){
-        .main-grid{grid-template-columns:1fr; gap:1rem}
-    }
-    @media(max-width:768px){
-        .welcome-banner{flex-direction:column; text-align:center; padding:1.5rem}
-        .wb-text, .d-flex.gap-4.text-center{max-width:100%; margin-bottom:1rem}
-        .quick-actions{flex-direction:column}
-        .qa-btn{max-width:none}
-        .tab-nav{flex-direction:column; gap:.25rem}
-        .tab-btn{padding:.6rem}
-        .section-header{flex-direction:column; align-items:flex-start; gap:.75rem; padding:1rem}
-        .user-row, .exam-row, .act-item{flex-direction:column; align-items:flex-start; gap:.75rem; padding:1rem}
-        .user-meta, .exam-meta{order:-1; width:100%; margin-bottom:.5rem}
-    }
-    @media(max-width:480px){
-        .stat-grid{gap:.75rem}
-        .btn-sm{padding:.4rem .85rem}
-        .pill{font-size:.65rem; padding:.2rem .6rem}
-    }
 </style>
 {% endblock %}
 
