@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Results — {{ exam.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .result-wrap { max-width:780px; margin:0 auto; padding:2rem 1rem; }
+    .result-hero { background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(34,211,238,.06)); border:1px solid rgba(99,102,241,.2); border-radius:24px; padding:3rem 2.5rem; text-align:center; margin-bottom:2rem; position:relative; overflow:hidden; }
+    .result-hero::before { content:''; position:absolute; top:-80px; left:50%; transform:translateX(-50%); width:400px; height:200px; background:radial-gradient(circle,rgba(99,102,241,.18),transparent 70%); pointer-events:none; }
+    .big-grade { font-family:'Syne',sans-serif; font-size:5rem; font-weight:800; line-height:1; margin-bottom:.5rem; }
+    .score-pct { font-size:1.8rem; font-weight:800; color:var(--white); margin-bottom:.4rem; font-family:'Syne',sans-serif; }
+    .pass-badge { display:inline-flex; align-items:center; gap:.4rem; border-radius:50px; padding:.35rem 1.1rem; font-size:.85rem; font-weight:700; margin-bottom:1.5rem; }
+    .answer-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:1rem; }
+    .answer-card.correct { border-color:rgba(52,211,153,.28); background:rgba(52,211,153,.04); }
+    .answer-card.wrong { border-color:rgba(244,63,94,.25); background:rgba(244,63,94,.04); }
+    .answer-card.essay { border-color:rgba(251,191,36,.2); background:rgba(251,191,36,.03); }
+    .ans-badge { width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.8rem; flex-shrink:0; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div style="padding:1.5rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+    <a href="{% url 'exams:student_dashboard' %}" style="color:var(--muted);text-decoration:none;font-size:.85rem;display:flex;align-items:center;gap:.5rem"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    <a href="{% url 'exams:my_results' %}" style="color:#a5b4fc;text-decoration:none;font-size:.82rem">All Results →</a>
+</div>
+
+<div class="result-wrap">
+    <div class="result-hero">
+        <div class="big-grade" style="color:{% if submission.grade_letter == 'A' %}var(--green){% elif submission.grade_letter == 'B' %}#a5b4fc{% elif submission.grade_letter == 'C' %}var(--amber){% else %}var(--rose){% endif %}">
+            {{ submission.grade_letter }}
+        </div>
+        <div class="score-pct">{{ submission.score_percentage }}%</div>
+        <div>
+            {% if submission.passed %}
+            <div class="pass-badge" style="background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.28);color:var(--green)"><i class="fas fa-check-circle"></i> Passed!</div>
+            {% else %}
+            <div class="pass-badge" style="background:rgba(244,63,94,.1);border:1px solid rgba(244,63,94,.25);color:var(--rose)"><i class="fas fa-times-circle"></i> Did not pass</div>
+            {% endif %}
+        </div>
+        <h2 style="font-size:1.3rem;font-weight:800;color:var(--white);margin-bottom:.4rem">{{ exam.title }}</h2>
+        <p style="color:var(--muted);font-size:.85rem">Submitted {{ submission.submitted_at|date:"M d, Y \a\t g:i A" }}</p>
+
+        <div class="row g-3 mt-3 text-center">
+            <div class="col-3"><div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--white)">{{ submission.score|floatformat:0 }}</div><div style="font-size:.74rem;color:var(--muted)">Marks Earned</div></div>
+            <div class="col-3"><div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--white)">{{ exam.total_marks }}</div><div style="font-size:.74rem;color:var(--muted)">Total Marks</div></div>
+            <div class="col-3"><div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--amber)">#{{ rank }}</div><div style="font-size:.74rem;color:var(--muted)">Class Rank</div></div>
+            <div class="col-3"><div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--cyan)">{{ submission.time_taken_seconds|floatformat:0|default:"—" }}s</div><div style="font-size:.74rem;color:var(--muted)">Time Taken</div></div>
+        </div>
+    </div>
+
+    <h4 style="font-size:1rem;font-weight:800;color:var(--white);margin-bottom:1rem">Question Review</h4>
+
+    {% for answer in answers %}
+    <div class="answer-card {% if answer.is_correct %}correct{% elif answer.is_correct == False %}wrong{% else %}essay{% endif %}">
+        <div class="d-flex align-items-start gap-3">
+            <div class="ans-badge" style="background:{% if answer.is_correct %}rgba(52,211,153,.15);color:var(--green){% elif answer.is_correct == False %}rgba(244,63,94,.12);color:var(--rose){% else %}rgba(251,191,36,.1);color:var(--amber){% endif %}">
+                {% if answer.is_correct %}<i class="fas fa-check"></i>{% elif answer.is_correct == False %}<i class="fas fa-times"></i>{% else %}<i class="fas fa-pen"></i>{% endif %}
+            </div>
+            <div style="flex:1">
+                <div style="font-size:.74rem;color:var(--muted);margin-bottom:.3rem">Q{{ forloop.counter }} · {{ answer.question.get_question_type_display }} · {{ answer.question.marks }} mark{{ answer.question.marks|pluralize }}</div>
+                <div style="font-size:.92rem;color:var(--white);font-weight:500;margin-bottom:.7rem">{{ answer.question.text }}</div>
+                <div style="font-size:.84rem;margin-bottom:.3rem"><span style="color:var(--muted)">Your answer:</span> <span style="color:var(--text)">{{ answer.answer_text|default:"(not answered)" }}</span></div>
+                {% if answer.question.is_auto_gradable and answer.is_correct == False %}
+                <div style="font-size:.84rem"><span style="color:var(--muted)">Correct answer:</span> <span style="color:var(--green)">{{ answer.question.correct_answer }}</span></div>
+                {% endif %}
+                {% if answer.question.question_type == 'essay' %}
+                    {% if answer.instructor_marks is not None %}
+                    <div style="margin-top:.5rem;font-size:.82rem"><span style="color:var(--muted)">Marks awarded:</span> <span style="color:var(--green);font-weight:700">{{ answer.instructor_marks }} / {{ answer.question.marks }}</span></div>
+                    {% if answer.instructor_feedback %}<div style="margin-top:.3rem;font-size:.82rem;color:var(--muted)"><i class="fas fa-comment me-1"></i>{{ answer.instructor_feedback }}</div>{% endif %}
+                    {% else %}
+                    <div style="margin-top:.5rem;font-size:.78rem;color:var(--amber)"><i class="fas fa-clock me-1"></i>Awaiting instructor grading</div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="d-flex gap-3 mt-4">
+        <a href="{% url 'exams:student_dashboard' %}" style="flex:1;padding:.82rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:var(--text);text-decoration:none;text-align:center;font-weight:600;font-size:.9rem;transition:all .22s">← Dashboard</a>
+        <a href="{% url 'exams:my_results' %}" style="flex:1;padding:.82rem;background:linear-gradient(135deg,var(--indigo),var(--violet));border:none;border-radius:12px;color:white;text-decoration:none;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem">All Results</a>
+    </div>
+</div>
+{% endblock %}

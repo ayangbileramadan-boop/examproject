@@ -1,0 +1,456 @@
+{% extends 'base.html' %}
+{% block title %}ExamSystem — Ace Exams Effortlessly{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { overflow-x:hidden; }
+    .hero { min-height:100vh; background:linear-gradient(135deg,#1e1b4b 0%,#0f172a 50%,#0c0c24 100%); display:flex; align-items:center; position:relative; overflow:hidden; padding:100px 0 60px; }
+    .orb { position:absolute; border-radius:50%; filter:blur(90px); pointer-events:none; }
+    .orb-1 { width:600px; height:600px; background:radial-gradient(circle,rgba(99,102,241,.25),transparent 70%); top:-150px; left:-150px; }
+    .orb-2 { width:400px; height:400px; background:radial-gradient(circle,rgba(139,92,246,.2),transparent 70%); bottom:-100px; right:-80px; }
+    .orb-3 { width:250px; height:250px; background:radial-gradient(circle,rgba(34,211,238,.15),transparent 70%); top:40%; right:25%; }
+    .hero-badge { display:inline-flex; align-items:center; gap:.5rem; background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.28); color:#a5b4fc; border-radius:50px; padding:.38rem 1.1rem; font-size:.78rem; font-weight:600; margin-bottom:1.8rem; }
+    .pulse { width:7px; height:7px; background:var(--cyan); border-radius:50%; animation:pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)} }
+    .hero-title { font-size:clamp(2.8rem,6vw,5.5rem); font-weight:800; letter-spacing:-2px; line-height:1.05; margin-bottom:1.4rem; }
+    .gradient-text { background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-size:200%; animation:shift 4s ease infinite; }
+    @keyframes shift { 0%,100%{background-position:0%}50%{background-position:100%} }
+    .hero-sub { color:var(--muted); font-size:1.1rem; max-width:520px; line-height:1.75; margin-bottom:2.5rem; font-weight:300; }
+    .btn-primary-h { background:linear-gradient(135deg,var(--indigo),var(--violet)); color:white; border:none; padding:.88rem 2.1rem; border-radius:12px; font-family:'Syne',sans-serif; font-weight:700; font-size:.92rem; cursor:pointer; transition:all .3s; text-decoration:none; display:inline-block; }
+    .btn-primary-h:hover { transform:translateY(-3px); box-shadow:0 18px 45px rgba(99,102,241,.4); color:white; }
+    .btn-ghost-h { background:transparent; color:var(--text); border:1.5px solid rgba(255,255,255,.14); padding:.88rem 2.1rem; border-radius:12px; font-family:'Syne',sans-serif; font-weight:700; font-size:.92rem; cursor:pointer; transition:all .3s; text-decoration:none; display:inline-block; }
+    .btn-ghost-h:hover { border-color:var(--cyan); color:var(--cyan); transform:translateY(-3px); }
+    /* mock card */
+    .mock-card { background:rgba(255,255,255,.04); backdrop-filter:blur(18px); border:1px solid rgba(255,255,255,.1); border-radius:22px; padding:1.5rem; }
+    .timer-pill { background:rgba(244,63,94,.12); border:1px solid rgba(244,63,94,.28); color:var(--rose); border-radius:8px; padding:.28rem .75rem; font-size:.76rem; font-weight:600; display:inline-block; margin-bottom:.9rem; }
+    .prog-track { height:5px; background:rgba(255,255,255,.07); border-radius:999px; overflow:hidden; margin-top:.4rem; }
+    .prog-fill { height:100%; background:linear-gradient(90deg,var(--indigo),var(--cyan)); border-radius:999px; width:65%; animation:grow 1.5s ease forwards; }
+    @keyframes grow { from{width:0}to{width:65%} }
+    .mini-row { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:11px; padding:.7rem .9rem; display:flex; align-items:center; gap:.7rem; font-size:.8rem; }
+    .mini-ic { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.8rem; flex-shrink:0; }
+    /* Navbar */
+    .site-nav { position:fixed; top:0; left:0; right:0; z-index:1000; padding:1.4rem 0; transition:all .35s; }
+    .site-nav.scrolled { background:rgba(7,7,26,.88) !important; backdrop-filter:blur(20px); padding:.9rem 0; border-bottom:1px solid rgba(255,255,255,.06); }
+    .nav-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem; background:linear-gradient(135deg,var(--cyan),var(--violet)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-decoration:none; }
+    .nav-link-item { color:var(--muted); text-decoration:none; font-size:.87rem; font-weight:500; transition:color .2s; padding:.4rem .9rem; }
+    .nav-link-item:hover { color:var(--white); }
+    .btn-nav { background:transparent; border:1.5px solid rgba(99,102,241,.45); color:var(--text); border-radius:50px; padding:.42rem 1.3rem; font-size:.83rem; font-weight:500; cursor:pointer; transition:all .28s; text-decoration:none; }
+    .btn-nav:hover { background:var(--indigo); border-color:var(--indigo); color:white; }
+    /* Stats row */
+    .stats-row { background:rgba(255,255,255,.02); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:3rem 0; }
+    .stat-item { text-align:center; }
+    .stat-big { font-family:'Syne',sans-serif; font-size:2.8rem; font-weight:800; background:linear-gradient(135deg,var(--cyan),var(--violet)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    /* Features */
+    .feat-card { background:var(--card); border:1px solid var(--border); border-radius:22px; padding:2rem; height:100%; transition:all .35s; }
+    .feat-card:hover { transform:translateY(-10px); border-color:rgba(99,102,241,.25); box-shadow:0 35px 70px rgba(0,0,0,.22); }
+    .feat-ic { width:55px; height:55px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:1.3rem; }
+    .ftag { display:inline-block; background:rgba(34,211,238,.07); border:1px solid rgba(34,211,238,.15); color:var(--cyan); border-radius:6px; padding:.18rem .55rem; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.7rem; }
+    /* Steps */
+    .step-card { background:var(--card); border:1px solid var(--border); border-radius:22px; padding:2rem 1.8rem; text-align:center; height:100%; transition:all .35s; }
+    .step-card:hover { transform:translateY(-8px); border-color:rgba(99,102,241,.28); }
+    .step-num { font-family:'Syne',sans-serif; font-size:3.5rem; font-weight:800; color:rgba(99,102,241,.12); line-height:1; }
+    .step-ic { width:60px; height:60px; border-radius:17px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto .9rem; }
+    /* CTA */
+    .cta-box { background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(34,211,238,.06)); border:1px solid rgba(99,102,241,.22); border-radius:28px; padding:5rem 2rem; text-align:center; position:relative; overflow:hidden; }
+    .cta-box::before { content:''; position:absolute; top:-80px; left:50%; transform:translateX(-50%); width:500px; height:260px; background:radial-gradient(circle,rgba(99,102,241,.18),transparent 70%); pointer-events:none; }
+    /* Modal */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(8px); z-index:2000; display:none; align-items:center; justify-content:center; padding:1rem; }
+    .modal-overlay.show { display:flex; }
+    .modal-box { background:#0f0f26; border:1px solid rgba(99,102,241,.22); border-radius:26px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; position:relative; animation:popIn .3s cubic-bezier(.16,1,.3,1); }
+    .modal-box::-webkit-scrollbar { width:4px; }
+    .modal-box::-webkit-scrollbar-thumb { background:rgba(99,102,241,.3); border-radius:2px; }
+    @keyframes popIn { from{opacity:0;transform:scale(.93)} to{opacity:1;transform:scale(1)} }
+    .modal-inner { padding:2.2rem 2.5rem; }
+    .modal-close { position:absolute; top:1.1rem; right:1.1rem; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.07); border:none; color:var(--muted); cursor:pointer; font-size:.8rem; transition:all .22s; display:flex; align-items:center; justify-content:center; }
+    .modal-close:hover { background:rgba(255,255,255,.14); color:var(--white); }
+    .role-tabs { display:grid; grid-template-columns:1fr 1fr; gap:.4rem; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:13px; padding:.3rem; margin-bottom:1.6rem; }
+    .role-tab { padding:.6rem .9rem; border-radius:10px; border:none; background:transparent; color:var(--muted); font-family:'DM Sans',sans-serif; font-size:.85rem; font-weight:500; cursor:pointer; transition:all .25s; display:flex; align-items:center; justify-content:center; gap:.45rem; }
+    .role-tab.active { background:linear-gradient(135deg,var(--indigo),var(--violet)); color:white; box-shadow:0 4px 18px rgba(99,102,241,.28); }
+    .form-grp { margin-bottom:.9rem; }
+    .form-lbl { display:block; font-size:.77rem; color:var(--muted); font-weight:500; margin-bottom:.38rem; letter-spacing:.04em; }
+    .form-inp { width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:11px; padding:.7rem .95rem; color:var(--white); font-family:'DM Sans',sans-serif; font-size:.88rem; outline:none; transition:all .28s; }
+    .form-inp:focus { border-color:rgba(99,102,241,.48); box-shadow:0 0 0 3px rgba(99,102,241,.09); background:rgba(255,255,255,.06); }
+    .form-inp::placeholder { color:rgba(255,255,255,.24); }
+    .btn-submit { width:100%; padding:.82rem; border:none; border-radius:11px; background:linear-gradient(135deg,var(--indigo),var(--violet)); color:white; font-family:'Syne',sans-serif; font-weight:700; font-size:.92rem; cursor:pointer; transition:all .3s; margin-top:.4rem; }
+    .btn-submit:hover { transform:translateY(-2px); box-shadow:0 10px 28px rgba(99,102,241,.38); }
+    .btn-google { width:100%; padding:.72rem; border:1px solid rgba(255,255,255,.11); border-radius:11px; background:rgba(255,255,255,.04); color:var(--text); font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:500; cursor:pointer; transition:all .28s; display:flex; align-items:center; justify-content:center; gap:.65rem; }
+    .btn-google:hover { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.2); }
+    .or-div { text-align:center; color:var(--muted); font-size:.78rem; margin:1.1rem 0; position:relative; }
+    .or-div::before,.or-div::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:rgba(255,255,255,.07); }
+    .or-div::before{left:0} .or-div::after{right:0}
+    .inp-wrap { position:relative; }
+    .inp-wrap .form-inp { padding-right:2.8rem; }
+    .eye-btn { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--muted); cursor:pointer; font-size:.82rem; transition:color .2s; }
+    .eye-btn:hover { color:var(--white); }
+    /* Section tag */
+    .section-tag { display:inline-block; background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.24); color:#a5b4fc; border-radius:50px; padding:.28rem .95rem; font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:.9rem; }
+    .section-title { font-size:clamp(1.8rem,3.5vw,2.8rem); font-weight:800; letter-spacing:-1px; margin-bottom:.8rem; }
+    /* Testimonials */
+    .test-card { background:var(--card); border:1px solid var(--border); border-radius:22px; padding:1.8rem; height:100%; transition:all .32s; }
+    .test-card:hover { transform:translateY(-5px); border-color:rgba(255,255,255,.13); }
+    .stars { color:var(--amber); font-size:.82rem; margin-bottom:.9rem; }
+    .test-text { font-size:.88rem; color:var(--text); line-height:1.72; margin-bottom:1.3rem; font-style:italic; }
+    .test-author { display:flex; align-items:center; gap:.75rem; }
+    .t-avatar { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; color:white; font-family:'Syne',sans-serif; flex-shrink:0; }
+    /* Footer */
+    footer { border-top:1px solid var(--border); padding:3.5rem 0 1.5rem; }
+    .footer-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.25rem; background:linear-gradient(135deg,var(--cyan),var(--violet)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    footer a { color:var(--muted); text-decoration:none; font-size:.83rem; transition:color .2s; }
+    footer a:hover { color:var(--white); }
+    .marquee-wrap { overflow:hidden; }
+    .marquee-track { display:flex; gap:2.5rem; animation:marquee 22s linear infinite; width:max-content; }
+    .marquee-item { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; color:rgba(255,255,255,.2); white-space:nowrap; }
+    @keyframes marquee { from{transform:translateX(0)}to{transform:translateX(-50%)} }
+    /* Loading Animation */
+    .btn-loading { position:relative; pointer-events:none; }
+    .btn-loading::after { content:''; position:absolute; width:20px; height:20px; top:50%; left:50%; margin:-10px 0 0 -10px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .spinner-overlay { position:fixed; inset:0; background:rgba(0,0,0,.8); display:flex; align-items:center; justify-content:center; z-index:9999; }
+    .spinner-box { text-align:center; }
+    .spinner { width:50px; height:50px; border:3px solid rgba(99,102,241,.2); border-top-color:var(--indigo); border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 1rem; }
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- NAVBAR -->
+<nav class="site-nav" id="siteNav">
+    <div class="container d-flex align-items-center justify-content-between">
+        <a href="{% url 'exams:landing' %}" class="nav-logo">ExamSystem</a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="#features" class="nav-link-item d-none d-md-block">Features</a>
+            <a href="#how" class="nav-link-item d-none d-md-block">How It Works</a>
+            {% if user.is_authenticated %}
+                {% if user.is_instructor %}
+                    <a href="{% url 'exams:instructor_dashboard' %}" class="btn-nav" style="background:var(--indigo);border-color:var(--indigo)">
+                        <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                    </a>
+                {% else %}
+                    <a href="{% url 'exams:student_dashboard' %}" class="btn-nav" style="background:var(--indigo);border-color:var(--indigo)">
+                        <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="#" class="btn-nav" onclick="openModal('loginModal')">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="hero-badge"><span class="pulse"></span>Trusted by 15,000+ students</div>
+                <h1 class="hero-title text-white">Ace Your Exams,<br><span class="gradient-text">Stress-Free.</span></h1>
+                <p class="hero-sub">Timed, secure, and smart online exams built for students and instructors — from Lagos to the world.</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="#" class="btn-primary-h" onclick="openModal('signupModal')"><i class="fas fa-rocket me-2"></i>Get Started Free</a>
+                    <a href="#how" class="btn-ghost-h"><i class="fas fa-play me-2"></i>See How It Works</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="mock-card">
+                    <div class="timer-pill"><i class="fas fa-clock me-1"></i>12:34 remaining</div>
+                    <h6 style="color:var(--white);font-weight:600;margin-bottom:.3rem">Database Systems — Final Exam</h6>
+                    <p style="font-size:.78rem;color:var(--muted);margin-bottom:.7rem">Question 7 of 20 • MCQ</p>
+                    <p style="font-size:.84rem">Which SQL clause filters grouped results?</p>
+                    <div class="prog-track"><div class="prog-fill"></div></div>
+                    <div class="mini-row mt-3">
+                        <div class="mini-ic" style="background:rgba(34,211,238,.1);color:var(--cyan)"><i class="fas fa-brain"></i></div>
+                        <div><div style="font-weight:600;font-size:.82rem;color:var(--white)">Auto-graded</div><div style="font-size:.72rem;color:var(--muted)">MCQ & True/False instant results</div></div>
+                    </div>
+                    <div class="mini-row">
+                        <div class="mini-ic" style="background:rgba(99,102,241,.1);color:var(--indigo)"><i class="fas fa-shield-halved"></i></div>
+                        <div><div style="font-weight:600;font-size:.82rem;color:var(--white)">Tamper-proof</div><div style="font-size:.72rem;color:var(--muted)">Session locked & monitored</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MARQUEE -->
+<section style="padding:2.5rem 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <p style="text-align:center;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:1.3rem">Trusted by institutions across Nigeria</p>
+    <div class="marquee-wrap">
+        <div class="marquee-track">
+            <span class="marquee-item">University of Lagos</span><span class="marquee-item">•</span>
+            <span class="marquee-item">Covenant University</span><span class="marquee-item">•</span>
+            <span class="marquee-item">Babcock University</span><span class="marquee-item">•</span>
+            <span class="marquee-item">LASU</span><span class="marquee-item">•</span>
+            <span class="marquee-item">OAU Ile-Ife</span><span class="marquee-item">•</span>
+            <span class="marquee-item">UNIBEN</span><span class="marquee-item">•</span>
+            <span class="marquee-item">ABU Zaria</span><span class="marquee-item">•</span>
+            <span class="marquee-item">University of Lagos</span><span class="marquee-item">•</span>
+            <span class="marquee-item">Covenant University</span><span class="marquee-item">•</span>
+            <span class="marquee-item">Babcock University</span><span class="marquee-item">•</span>
+            <span class="marquee-item">LASU</span><span class="marquee-item">•</span>
+            <span class="marquee-item">OAU Ile-Ife</span><span class="marquee-item">•</span>
+        </div>
+    </div>
+</section>
+
+<!-- STATS -->
+<section style="padding:5rem 0">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3 col-6"><div class="glass-card p-4 text-center"><div class="stat-big" data-count="15000">0</div><p style="color:var(--muted);font-size:.85rem;margin-top:.3rem">Students Registered</p></div></div>
+            <div class="col-md-3 col-6"><div class="glass-card p-4 text-center"><div class="stat-big" data-count="800">0</div><p style="color:var(--muted);font-size:.85rem;margin-top:.3rem">Exams Created</p></div></div>
+            <div class="col-md-3 col-6"><div class="glass-card p-4 text-center"><div class="stat-big" data-count="98" data-suffix="%">0%</div><p style="color:var(--muted);font-size:.85rem;margin-top:.3rem">Satisfaction Rate</p></div></div>
+            <div class="col-md-3 col-6"><div class="glass-card p-4 text-center"><div class="stat-big" data-count="200">0</div><p style="color:var(--muted);font-size:.85rem;margin-top:.3rem">Instructors Onboard</p></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="padding:5rem 0">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-tag">Features</span>
+            <h2 class="section-title text-white">Everything you need to exam well</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4"><div class="feat-card"><div class="feat-ic" style="background:rgba(99,102,241,.12);color:var(--indigo)"><i class="fas fa-shield-halved"></i></div><span class="ftag">Security</span><h4 style="color:var(--white);font-size:1.05rem;font-weight:700;margin-bottom:.6rem">Secure Verification</h4><p style="color:var(--muted);font-size:.86rem;line-height:1.68">Email + role-based checks. No impersonation, no cheating. Every identity confirmed.</p></div></div>
+            <div class="col-md-4"><div class="feat-card"><div class="feat-ic" style="background:rgba(34,211,238,.1);color:var(--cyan)"><i class="fas fa-stopwatch"></i></div><span class="ftag">Timing</span><h4 style="color:var(--white);font-size:1.05rem;font-weight:700;margin-bottom:.6rem">Live Countdown Timers</h4><p style="color:var(--muted);font-size:.86rem;line-height:1.68">Auto-submits the moment time expires. Full visibility, no manual collection needed.</p></div></div>
+            <div class="col-md-4"><div class="feat-card"><div class="feat-ic" style="background:rgba(251,191,36,.1);color:var(--amber)"><i class="fas fa-brain"></i></div><span class="ftag">Grading</span><h4 style="color:var(--white);font-size:1.05rem;font-weight:700;margin-bottom:.6rem">Auto-Grade + Essay Review</h4><p style="color:var(--muted);font-size:.86rem;line-height:1.68">MCQ and True/False graded instantly. Essay questions graded manually by instructors.</p></div></div>
+            <div class="col-md-4"><div class="feat-card"><div class="feat-ic" style="background:rgba(244,63,94,.1);color:var(--rose)"><i class="fas fa-chart-bar"></i></div><span class="ftag">Analytics</span><h4 style="color:var(--white);font-size:1.05rem;font-weight:700;margin-bottom:.6rem">Detailed Analytics</h4><p style="color:var(--muted);font-size:.86rem;line-height:1.68">Per-question breakdown, class averages, and student performance trends at a glance.</p></div></div>
+            <div class="col-md-4"><div class="feat-card"><div class="feat-ic" style="background:rgba(139,92,246,.1);color:var(--violet)"><i class="fas fa-users"></i></div><span class="ftag">Roles</span><h4 style="color:var(--white);font-size:1.05rem;font-weight:700;margin-bottom:.6rem">Multi-Role Access</h4><p style="color:var(--muted);font-size:.86rem;line-height:1.68">Separate dashboards for students and instructors — each with tailored workflows.</p></div></div>
+            <div class="col-md-4"><div class="feat-card"><div class="feat-ic" style="background:rgba(251,146,60,.1);color:var(--orange)"><i class="fas fa-mobile-alt"></i></div><span class="ftag">Mobile</span><h4 style="color:var(--white);font-size:1.05rem;font-weight:700;margin-bottom:.6rem">Mobile Friendly</h4><p style="color:var(--muted);font-size:.86rem;line-height:1.68">Works perfectly on phones and tablets. Take or set exams from anywhere, anytime.</p></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="padding:5rem 0;background:linear-gradient(180deg,transparent,rgba(99,102,241,.03),transparent)">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-tag">Process</span>
+            <h2 class="section-title text-white">How it works</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3"><div class="step-card"><div class="step-num">01</div><div class="step-ic" style="background:rgba(99,102,241,.12);color:var(--indigo)"><i class="fas fa-user-plus"></i></div><h5 style="color:var(--white);font-size:.95rem;font-weight:700;margin-bottom:.5rem">Sign Up</h5><p style="font-size:.84rem;color:var(--muted)">Quick registration. Choose student or instructor and verify your email.</p></div></div>
+            <div class="col-md-3"><div class="step-card"><div class="step-num">02</div><div class="step-ic" style="background:rgba(34,211,238,.1);color:var(--cyan)"><i class="fas fa-book-open"></i></div><h5 style="color:var(--white);font-size:.95rem;font-weight:700;margin-bottom:.5rem">Create or Join</h5><p style="font-size:.84rem;color:var(--muted)">Instructors build exams. Students join with a 6-character exam code.</p></div></div>
+            <div class="col-md-3"><div class="step-card"><div class="step-num">03</div><div class="step-ic" style="background:rgba(251,191,36,.1);color:var(--amber)"><i class="fas fa-hourglass-half"></i></div><h5 style="color:var(--white);font-size:.95rem;font-weight:700;margin-bottom:.5rem">Take the Exam</h5><p style="font-size:.84rem;color:var(--muted)">Focused timed session with live countdown. Auto-submits when time's up.</p></div></div>
+            <div class="col-md-3"><div class="step-card"><div class="step-num">04</div><div class="step-ic" style="background:rgba(52,211,153,.1);color:var(--green)"><i class="fas fa-trophy"></i></div><h5 style="color:var(--white);font-size:.95rem;font-weight:700;margin-bottom:.5rem">Get Results</h5><p style="font-size:.84rem;color:var(--muted)">Instant grading for MCQ/TF. Scores, rank, and per-question review immediately.</p></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section style="padding:5rem 0">
+    <div class="container">
+        <div class="text-center mb-5"><span class="section-tag">Reviews</span><h2 class="section-title text-white">Loved by students & instructors</h2></div>
+        <div class="row g-4">
+            <div class="col-md-4"><div class="test-card"><div class="stars">★★★★★</div><p class="test-text">"ExamSystem completely changed how I run my midterms. Auto-grading saves me literally hours every semester."</p><div class="test-author"><div class="t-avatar" style="background:linear-gradient(135deg,var(--indigo),var(--violet))">AO</div><div><div style="font-weight:600;font-size:.85rem;color:var(--white)">Dr. Adewale Okonkwo</div><div style="font-size:.72rem;color:var(--muted)">Lecturer · University of Lagos</div></div></div></div></div>
+            <div class="col-md-4"><div class="test-card"><div class="stars">★★★★★</div><p class="test-text">"The countdown timer and clean interface kept me focused. Got my results immediately after submission. This is the future."</p><div class="test-author"><div class="t-avatar" style="background:linear-gradient(135deg,var(--cyan),var(--indigo))">FE</div><div><div style="font-weight:600;font-size:.85rem;color:var(--white)">Funmi Eze</div><div style="font-size:.72rem;color:var(--muted)">200L Student · Computer Science</div></div></div></div></div>
+            <div class="col-md-4"><div class="test-card"><div class="stars">★★★★★</div><p class="test-text">"As a department coordinator, ExamSystem gave me full visibility into every exam. The analytics dashboard is gold."</p><div class="test-author"><div class="t-avatar" style="background:linear-gradient(135deg,var(--orange),var(--rose))">KA</div><div><div style="font-weight:600;font-size:.85rem;color:var(--white)">Kemi Adeyemi</div><div style="font-size:.72rem;color:var(--muted)">HOD · Electrical Engineering</div></div></div></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section style="padding:5rem 0">
+    <div class="container">
+        <div class="cta-box">
+            <span class="section-tag">Get Started</span>
+            {% if user.is_authenticated %}
+                <h2 class="section-title text-white" style="font-size:clamp(1.8rem,4vw,3.2rem)">Welcome back, {{ user.username }}!</h2>
+                <p style="color:var(--muted);max-width:440px;margin:0 auto 2.3rem;font-size:.95rem;line-height:1.72">You are already logged in. Go to your dashboard to continue.</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    {% if user.is_instructor %}
+                        <a href="{% url 'exams:instructor_dashboard' %}" class="btn-primary-h"><i class="fas fa-chalkboard-teacher me-2"></i>Instructor Dashboard</a>
+                    {% else %}
+                        <a href="{% url 'exams:student_dashboard' %}" class="btn-primary-h"><i class="fas fa-graduation-cap me-2"></i>Student Dashboard</a>
+                    {% endif %}
+                    <a href="{% url 'accounts:logout' %}" class="btn-ghost-h"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                </div>
+            {% else %}
+                <h2 class="section-title text-white" style="font-size:clamp(1.8rem,4vw,3.2rem)">Ready to run better exams?</h2>
+                <p style="color:var(--muted);max-width:440px;margin:0 auto 2.3rem;font-size:.95rem;line-height:1.72">Join thousands of students and instructors already using ExamSystem. Setup takes under 2 minutes.</p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="#" class="btn-primary-h" onclick="openModal('signupModal')"><i class="fas fa-rocket me-2"></i>Join as Student</a>
+                    <a href="#" class="btn-ghost-h" onclick="openModal('signupModal','instructor')"><i class="fas fa-chalkboard-teacher me-2"></i>Join as Instructor</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="container">
+        <div class="row g-4 mb-4">
+            <div class="col-md-4"><div class="footer-logo mb-2">ExamSystem</div><p style="color:var(--muted);font-size:.83rem;max-width:240px;line-height:1.7">Secure, smart, and stress-free online exams. Made in Lagos.</p></div>
+<div class="col-md-2"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:.83rem;color:var(--white);margin-bottom:.7rem">Product</p><div class="d-flex flex-column gap-2"><a href="#features">Features</a><a href="#how">How It Works</a></div></div>
+            <div class="col-md-2"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:.83rem;color:var(--white);margin-bottom:.7rem">Account</p><div class="d-flex flex-column gap-2">
+                {% if user.is_authenticated %}
+                    {% if user.is_instructor %}
+                        <a href="{% url 'exams:instructor_dashboard' %}">Instructor Dashboard</a>
+                    {% else %}
+                        <a href="{% url 'exams:student_dashboard' %}">Student Dashboard</a>
+                    {% endif %}
+                    <a href="{% url 'accounts:logout' %}">Logout</a>
+                {% else %}
+                    <a href="#" onclick="openModal('loginModal')">Login</a>
+                    <a href="#" onclick="openModal('signupModal')">Sign Up</a>
+                {% endif %}
+            </div></div>
+            <div class="col-md-4"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:.83rem;color:var(--white);margin-bottom:.7rem">Legal</p><div class="d-flex flex-column gap-2"><a href="#">Terms of Service</a><a href="#">Privacy Policy</a></div></div>
+        </div>
+        <hr style="border-color:rgba(255,255,255,.06)">
+        <div class="d-flex justify-content-between flex-wrap gap-2 pt-2">
+            <p style="color:var(--muted);font-size:.78rem">© 2026 ExamSystem. All rights reserved.</p>
+            <p style="color:var(--muted);font-size:.78rem">Built in Lagos, Nigeria 🇳🇬</p>
+        </div>
+    </div>
+</footer>
+
+<!-- BACKDROP -->
+<div style="position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:1999;display:none" id="backdrop" onclick="closeAllModals()"></div>
+
+<!-- LOADING SPINNER -->
+<div class="spinner-overlay" id="loadingOverlay" style="display:none">
+    <div class="spinner-box">
+        <div class="spinner"></div>
+        <p style="color:var(--white);font-size:.9rem">Please wait...</p>
+    </div>
+</div>
+
+<!-- SIGNUP MODAL -->
+<div class="modal-overlay" id="signupModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeModal('signupModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-inner">
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1.5rem">ExamSystem</div>
+            <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:.3rem;color:var(--white)">Create your account</h3>
+            <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Choose your role to get started</p>
+            <div class="role-tabs">
+                <button class="role-tab active" id="tab-student" onclick="switchRole('student')"><i class="fas fa-graduation-cap"></i> Student</button>
+                <button class="role-tab" id="tab-instructor" onclick="switchRole('instructor')"><i class="fas fa-chalkboard-teacher"></i> Instructor</button>
+            </div>
+            <!-- Student Form -->
+            <form id="form-student" method="post" action="{% url 'accounts:student_signup' %}">
+                {% csrf_token %}
+                <div class="row g-2">
+                    <div class="col-md-6 form-grp"><label class="form-lbl">Email address</label><input type="email" name="email" class="form-inp" placeholder="you@example.com" required></div>
+                    <div class="col-md-6 form-grp"><label class="form-lbl">Username</label><input type="text" name="username" class="form-inp" placeholder="coolstudent" required></div>
+                    <div class="col-md-6 form-grp"><label class="form-lbl">Password</label><div class="inp-wrap"><input type="password" id="sp1" name="password1" class="form-inp" placeholder="••••••••" required><button type="button" class="eye-btn" onclick="togglePass('sp1',this)"><i class="fas fa-eye"></i></button></div></div>
+                    <div class="col-md-6 form-grp"><label class="form-lbl">Confirm Password</label><input type="password" name="password2" class="form-inp" placeholder="••••••••" required></div>
+                </div>
+                <button type="submit" class="btn-submit mt-2">Create Student Account</button>
+            </form>
+            <!-- Instructor Form -->
+            <form id="form-instructor" method="post" action="{% url 'accounts:instructor_signup' %}" style="display:none">
+                {% csrf_token %}
+                <div class="row g-2">
+                    <div class="col-md-6 form-grp"><label class="form-lbl">Email address</label><input type="email" name="email" class="form-inp" placeholder="you@university.edu.ng" required></div>
+                    <div class="col-md-6 form-grp"><label class="form-lbl">Full Name</label><input type="text" name="full_name" class="form-inp" placeholder="Dr. John Doe" required></div>
+                    <div class="col-md-6 form-grp"><label class="form-lbl">Department</label><input type="text" name="department" class="form-inp" placeholder="Computer Science" required></div>
+                    <div class="col-md-6 form-grp"><label class="form-lbl">Staff ID</label><input type="text" name="staff_id" class="form-inp" placeholder="STAFF/2024/001" required></div>
+                    <div class="col-12 form-grp"><label class="form-lbl">Password</label><div class="inp-wrap"><input type="password" id="ip1" name="password1" class="form-inp" placeholder="••••••••" required><button type="button" class="eye-btn" onclick="togglePass('ip1',this)"><i class="fas fa-eye"></i></button></div></div>
+                </div>
+                <button type="submit" class="btn-submit mt-2">Request Instructor Access</button>
+                <p style="text-align:center;font-size:.75rem;color:var(--muted);margin-top:.7rem">Reviewed & approved within 24–48 hours.</p>
+            </form>
+            <p style="text-align:center;font-size:.78rem;color:var(--muted);margin-top:1rem">Already have an account? <a href="#" style="color:#a5b4fc;text-decoration:none;font-weight:600" onclick="switchToLogin()">Log in</a></p>
+        </div>
+    </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+    <div class="modal-box" style="max-width:430px">
+        <button class="modal-close" onclick="closeModal('loginModal')"><i class="fas fa-times"></i></button>
+        <div class="modal-inner">
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1.5rem">ExamSystem</div>
+            <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:.3rem;color:var(--white)">Welcome back</h3>
+            <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Log in to your account</p>
+            <form method="post" action="{% url 'accounts:login' %}">
+                {% csrf_token %}
+                <div class="form-grp"><label class="form-lbl">Email or Username</label><input type="text" name="username" class="form-inp" placeholder="you@example.com" required></div>
+                <div class="form-grp"><label class="form-lbl">Password</label><div class="inp-wrap"><input type="password" id="lp1" name="password" class="form-inp" placeholder="••••••••" required><button type="button" class="eye-btn" onclick="togglePass('lp1',this)"><i class="fas fa-eye"></i></button></div></div>
+<div class="d-flex justify-content-between align-items-center mb-3" style="font-size:.78rem">
+                    <label style="display:flex;align-items:center;gap:.4rem;color:var(--muted);cursor:pointer"><input type="checkbox" style="accent-color:var(--indigo)"> Remember me</label>
+                    <a href="#" onclick="openForgotPassword()" style="color:#a5b4fc;text-decoration:none">Forgot password?</a>
+                </div>
+                <button type="submit" class="btn-submit">Login</button>
+            </form>
+            <p style="text-align:center;font-size:.78rem;color:var(--muted);margin-top:1rem">New here? <a href="#" style="color:#a5b4fc;text-decoration:none;font-weight:600" onclick="switchToSignup()">Create account</a></p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Show loading spinner on form submit
+    function showLoading(form) {
+        const btn = form.querySelector('button[type="submit"]');
+        if (btn) {
+            btn.classList.add('btn-loading');
+            btn.textContent = '';
+        }
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+    
+    // Add onsubmit to all forms in modals
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('#signupModal form, #loginModal form').forEach(function(form) {
+            form.addEventListener('submit', function() {
+                showLoading(form);
+            });
+        });
+    });
+    
+    window.addEventListener('scroll', () => {
+        document.getElementById('siteNav').classList.toggle('scrolled', window.scrollY > 80);
+    });
+    function openModal(id, role) {
+        document.getElementById('backdrop').style.display = 'block';
+        document.getElementById(id).classList.add('show');
+        document.body.style.overflow = 'hidden';
+        if (role && id === 'signupModal') switchRole(role);
+    }
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('show');
+        document.getElementById('backdrop').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    function closeAllModals() {
+        document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
+        document.getElementById('backdrop').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllModals(); });
+    function switchRole(role) {
+        document.getElementById('form-student').style.display = role === 'student' ? 'block' : 'none';
+        document.getElementById('form-instructor').style.display = role === 'instructor' ? 'block' : 'none';
+        document.getElementById('tab-student').classList.toggle('active', role === 'student');
+        document.getElementById('tab-instructor').classList.toggle('active', role === 'instructor');
+    }
+function switchToLogin() { closeModal('signupModal'); setTimeout(() => openModal('loginModal'), 180); }
+    function switchToSignup() { closeModal('loginModal'); setTimeout(() => openModal('signupModal'), 180); }
+    function togglePass(id, btn) {
+        const inp = document.getElementById(id);
+        const i = btn.querySelector('i');
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+        i.className = inp.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+    }
+    function openForgotPassword() {
+        closeModal('loginModal');
+        setTimeout(() => window.location.href = '/accounts/password-reset/request/', 200);
+    }
+    // Open login if there were auth errors
+    {% if messages %}
+    {% for message in messages %}
+    {% if 'Invalid' in message.message or 'pending' in message.message %}
+    document.addEventListener('DOMContentLoaded', () => openModal('loginModal'));
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+</script>
+{% endblock %}
+

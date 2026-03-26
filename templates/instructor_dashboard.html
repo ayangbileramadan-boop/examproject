@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% block title %}Instructor Dashboard — ExamSystem{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root { --accent: var(--orange); }
+    .welcome-banner { background:linear-gradient(135deg,rgba(251,146,60,.08),rgba(244,63,94,.05)); border:1px solid rgba(251,146,60,.18); border-radius:22px; padding:1.8rem 2.2rem; display:flex; align-items:center; justify-content:space-between; margin-bottom:1.8rem; position:relative; overflow:hidden; animation:slideIn .6s ease; }
+    @keyframes slideIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    .welcome-banner::before { content:''; position:absolute; top:-70px; right:-70px; width:240px; height:240px; background:radial-gradient(circle,rgba(251,146,60,.12),transparent 70%); pointer-events:none; }
+    .wb-text h1 { font-size:1.7rem; font-weight:800; letter-spacing:-1px; margin-bottom:.25rem; }
+    .approval-pill { display:inline-flex; align-items:center; gap:.35rem; background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.22); color:var(--green); padding:.22rem .75rem; border-radius:50px; font-size:.72rem; font-weight:600; margin-top:.55rem; }
+    .meta-num { font-family:'Syne',sans-serif; font-size:2.5rem; font-weight:800; background:linear-gradient(135deg,var(--orange),var(--rose)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; }
+    .main-grid { display:grid; grid-template-columns:1fr 300px; gap:1.5rem; margin-bottom:1.8rem; }
+    .exam-row { padding:1rem 1.4rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.9rem; transition:background .2s; cursor:pointer; }
+    .exam-row:last-child { border-bottom:none; }
+    .exam-row:hover { background:rgba(255,255,255,.025); }
+    .exam-bar { width:4px; height:44px; border-radius:2px; flex-shrink:0; }
+    .exam-name { font-weight:600; font-size:.86rem; color:var(--white); margin-bottom:.18rem; }
+    .exam-meta { font-size:.73rem; color:var(--muted); display:flex; flex-wrap:wrap; gap:.7rem; }
+    .exam-meta span { display:flex; align-items:center; gap:.22rem; }
+    .status-pill { padding:.22rem .65rem; border-radius:50px; font-size:.67rem; font-weight:700; white-space:nowrap; flex-shrink:0; }
+    .pill-live { background:rgba(244,63,94,.14); color:var(--rose); border:1px solid rgba(244,63,94,.24); animation:pulseBorder 2s infinite; }
+    @keyframes pulseBorder{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 0 4px rgba(244,63,94,.12)}}
+    .pill-draft { background:rgba(99,102,241,.1); color:#a5b4fc; border:1px solid rgba(99,102,241,.2); }
+    .pill-upcoming { background:rgba(251,191,36,.1); color:var(--amber); border:1px solid rgba(251,191,36,.2); }
+    .pill-closed { background:rgba(255,255,255,.05); color:var(--muted); border:1px solid rgba(255,255,255,.08); }
+    .btn-sm { padding:.3rem .75rem; border-radius:8px; font-size:.72rem; font-weight:700; cursor:pointer; border:none; transition:all .2s; font-family:'DM Sans',sans-serif; }
+    .btn-edit { background:rgba(99,102,241,.12); color:#a5b4fc; }
+    .btn-edit:hover { background:rgba(99,102,241,.24); }
+    .btn-view { background:rgba(251,146,60,.12); color:var(--orange); }
+    .btn-view:hover { background:rgba(251,146,60,.24); }
+    .btn-del { background:rgba(244,63,94,.08); color:var(--rose); }
+    .btn-del:hover { background:rgba(244,63,94,.2); }
+    .bottom-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem; margin-bottom:1.8rem; }
+    .bar-track { height:5px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; margin-top:.35rem; }
+    .bar-fill { height:100%; border-radius:999px; transition:width 1.1s cubic-bezier(.16,1,.3,1); }
+    .stu-item { padding:.85rem 1.4rem; display:flex; align-items:center; gap:.85rem; border-bottom:1px solid var(--border); transition:background .2s; }
+    .stu-item:last-child { border-bottom:none; }
+    .stu-item:hover { background:rgba(255,255,255,.025); }
+    .stu-av { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.78rem; color:white; flex-shrink:0; font-family:'Syne',sans-serif; }
+    .grade-item { padding:.88rem 1.4rem; display:flex; align-items:center; gap:.85rem; border-bottom:1px solid var(--border); transition:background .2s; cursor:pointer; }
+    .grade-item:last-child { border-bottom:none; }
+    .grade-item:hover { background:rgba(255,255,255,.025); }
+    .act-item { display:flex; gap:.8rem; padding:.75rem 1.4rem; border-bottom:1px solid rgba(255,255,255,.04); }
+    .act-item:last-child { border-bottom:none; }
+    .act-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.68rem; flex-shrink:0; margin-top:2px; }
+    /* Create modal */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(8px); z-index:200; display:none; align-items:center; justify-content:center; padding:1rem; }
+    .modal-overlay.show { display:flex; }
+    .modal-box { background:#0e0e26; border:1px solid rgba(251,146,60,.2); border-radius:26px; width:100%; max-width:560px; max-height:90vh; overflow-y:auto; position:relative; animation:popIn .32s cubic-bezier(.16,1,.3,1); }
+    .modal-box::-webkit-scrollbar { width:4px; }
+    .modal-box::-webkit-scrollbar-thumb { background:rgba(251,146,60,.3); border-radius:2px; }
+    @keyframes popIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
+    .modal-inner { padding:2rem 2.4rem; }
+    .modal-close { position:absolute; top:1rem; right:1rem; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.07); border:none; color:var(--muted); cursor:pointer; font-size:.78rem; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+    .modal-close:hover { background:rgba(255,255,255,.14); color:var(--white); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.9rem; }
+    .form-grp { margin-bottom:.85rem; }
+    .form-lbl { display:block; font-size:.76rem; color:var(--muted); font-weight:500; margin-bottom:.38rem; letter-spacing:.04em; }
+    .form-inp, .form-sel, .form-ta { width:100%; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:11px; padding:.7rem .92rem; color:var(--white); font-family:'DM Sans',sans-serif; font-size:.88rem; outline:none; transition:all .28s; }
+    .form-inp:focus,.form-sel:focus,.form-ta:focus { border-color:rgba(251,146,60,.45); box-shadow:0 0 0 3px rgba(251,146,60,.08); }
+    .form-inp::placeholder,.form-ta::placeholder { color:rgba(255,255,255,.24); }
+    .form-sel option { background:#0e0e26; }
+    .form-ta { resize:vertical; min-height:75px; }
+    .btn-create { width:100%; padding:.82rem; border:none; border-radius:11px; background:linear-gradient(135deg,var(--orange),var(--rose)); color:white; font-family:'Syne',sans-serif; font-weight:700; font-size:.92rem; cursor:pointer; transition:all .28s; margin-top:.4rem; }
+    .btn-create:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(251,146,60,.35); }
+    .btn-cancel-m { width:100%; padding:.65rem; background:transparent; border:1px solid rgba(255,255,255,.09); border-radius:11px; color:var(--muted); font-size:.84rem; cursor:pointer; margin-top:.5rem; transition:all .2s; }
+    .btn-cancel-m:hover { color:var(--white); border-color:rgba(255,255,255,.2); }
+@media(max-width:992px){
+    .main-grid{grid-template-columns:1fr};
+    .bottom-grid{grid-template-columns:1fr}
+}
+@media(max-width:768px){
+    .welcome-banner{flex-direction:column;gap:1rem;text-align:center;padding:1.5rem}
+}
+@media(max-width:480px){
+    .exam-row,.stu-item,.grade-item,.act-item{flex-direction:column;align-items:flex-start,gap:.75rem;padding:1rem}
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- CREATE EXAM MODAL -->
+<div class="modal-overlay" id="createModal">
+    <div class="modal-box">
+        <button class="modal-close" onclick="closeCreate()"><i class="fas fa-times"></i></button>
+        <div class="modal-inner">
+            <h3 style="font-size:1.35rem;font-weight:800;color:var(--white);margin-bottom:.3rem">Create New Exam</h3>
+            <p style="color:var(--muted);font-size:.84rem;margin-bottom:1.6rem">Students join with an auto-generated 6-character code.</p>
+            <form method="post" action="{% url 'exams:create_exam' %}">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-grp"><label class="form-lbl">Exam Title</label><input type="text" name="title" class="form-inp" placeholder="e.g. Database Final Exam" required></div>
+                    <div class="form-grp"><label class="form-lbl">Course / Subject</label><input type="text" name="subject" class="form-inp" placeholder="e.g. CSC 401"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-grp"><label class="form-lbl">Start Date & Time</label><input type="datetime-local" name="start_time" class="form-inp"></div>
+                    <div class="form-grp"><label class="form-lbl">End Date & Time</label><input type="datetime-local" name="end_time" class="form-inp"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-grp"><label class="form-lbl">Duration (minutes)</label><input type="number" name="duration_minutes" class="form-inp" value="60" min="10" max="360" required></div>
+                    <div class="form-grp"><label class="form-lbl">Pass Mark (%)</label><input type="number" name="pass_mark" class="form-inp" value="50" min="0" max="100" required></div>
+                </div>
+                <div class="form-grp"><label class="form-lbl">Instructions (optional)</label><textarea name="instructions" class="form-ta" placeholder="Any specific instructions for students..."></textarea></div>
+                <div class="form-row">
+                    <div class="form-grp"><label class="form-lbl">Shuffle Questions</label><select name="shuffle_questions" class="form-sel"><option value="True">Yes — Randomize</option><option value="False">No — Fixed order</option></select></div>
+                    <div class="form-grp"><label class="form-lbl">Publish Now?</label><select name="is_published" class="form-sel"><option value="False">No — Save as Draft</option><option value="True">Yes — Publish</option></select></div>
+                </div>
+                <button type="submit" class="btn-create"><i class="fas fa-rocket me-2"></i>Create Exam</button>
+                <button type="button" class="btn-cancel-m" onclick="closeCreate()">Cancel</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <a href="{% url 'exams:instructor_dashboard' %}" class="logo-text" style="background:linear-gradient(135deg,var(--orange),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;display:block">ExamSystem</a>
+            <div class="logo-badge" style="background:rgba(251,146,60,.12);border-color:rgba(251,146,60,.25);color:var(--orange)">Instructor Portal</div>
+        </div>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background:linear-gradient(135deg,var(--orange),var(--rose))">{{ user.avatar_initials|default:user.username|slice:":2"|upper }}</div>
+            <div class="user-info">
+                <div class="uname">{{ user.username }}</div>
+                <div class="urole" style="color:var(--orange)"><span class="online-dot"></span> Verified Instructor</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+            <a href="{% url 'exams:instructor_dashboard' %}" class="nav-item-link active">
+                <div class="nav-icon-w" style="background:rgba(251,146,60,.18);color:var(--orange)"><i class="fas fa-home"></i></div>Dashboard
+            </a>
+            <a href="#" class="nav-item-link" onclick="setActive(this)"><div class="nav-icon-w"><i class="fas fa-file-alt"></i></div>My Exams<span class="nav-badge" style="background:rgba(251,191,36,.15);color:var(--amber);border:1px solid rgba(251,191,36,.2)">{{ total_exams }}</span></a>
+            <a href="#" class="nav-item-link" onclick="setActive(this)"><div class="nav-icon-w"><i class="fas fa-pen-to-square"></i></div>Grade Essays{% if pending_essays_count %}<span class="nav-badge" style="background:var(--rose);color:white">{{ pending_essays_count }}</span>{% endif %}</a>
+            <a href="#" class="nav-item-link" onclick="setActive(this)"><div class="nav-icon-w"><i class="fas fa-users"></i></div>Students<span class="nav-badge" style="background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.2)">{{ total_students }}</span></a>
+            <div class="nav-section-label" style="margin-top:.5rem">Account</div>
+            <a href="#" class="nav-item-link" onclick="setActive(this)"><div class="nav-icon-w"><i class="fas fa-bell"></i></div>Notifications</a>
+            <a href="/accounts/profile/" class="nav-item-link" onclick="setActive(this)"><div class="nav-icon-w"><i class="fas fa-user-circle"></i></div>Profile</a>
+            <a href="/accounts/settings/" class="nav-item-link" onclick="setActive(this)"><div class="nav-icon-w"><i class="fas fa-cog"></i></div>Settings</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main">
+        <div class="mobile-bar">
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;background:linear-gradient(135deg,var(--orange),var(--rose));-webkit-background-clip:text;-webkit-text-fill-color:transparent">ExamSystem</div>
+            <div class="d-flex gap-2">
+                <button class="icon-btn" onclick="document.getElementById('createModal').classList.add('show')"><i class="fas fa-plus"></i></button>
+                <button class="icon-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+        <div class="topbar">
+            <div><h2 style="font-size:1.15rem;font-weight:800;color:var(--white)">Instructor Dashboard</h2><p id="liveClock" style="font-size:.76rem;color:var(--muted)"></p></div>
+            <div class="d-flex gap-2 align-items-center">
+                <a href="#" class="icon-btn"><i class="fas fa-bell"></i></a>
+                <button onclick="document.getElementById('createModal').classList.add('show')" style="background:linear-gradient(135deg,var(--orange),var(--rose));color:white;border:none;border-radius:10px;padding:.52rem 1rem;font-size:.81rem;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;transition:all .28s;display:flex;align-items:center;gap:.45rem"><i class="fas fa-plus"></i> Create Exam</button>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <!-- Welcome -->
+            <div class="welcome-banner">
+                <div class="wb-text">
+                    <h1 id="greetText" class="text-white">Welcome, {{ instructor.full_name|default:instructor.username }}!</h1>
+                    <p style="color:var(--muted);font-size:.87rem">{% if pending_essays_count %}You have {{ pending_essays_count }} essay{{ pending_essays_count|pluralize }} awaiting grading.{% else %}All essays graded. Great work!{% endif %}</p>
+                    <div class="approval-pill"><i class="fas fa-shield-check"></i> Verified Instructor{% if instructor.department %} · {{ instructor.department }}{% endif %}</div>
+                </div>
+                <div class="d-flex gap-4 text-center flex-shrink-0">
+                    <div><div class="meta-num" data-count="{{ total_students }}">0</div><div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">Students</div></div>
+                    <div><div class="meta-num" data-count="{{ total_exams }}">0</div><div style="font-size:.72rem;color:var(--muted);margin-top:.2rem">Exams</div></div>
+                </div>
+            </div>
+
+<!-- Stats -->
+            <div class="stat-grid">
+                <div class="stat-card animate-fade-in-up stagger-1"><div class="d-flex align-items-center justify-content-between mb-3"><div class="stat-icon" style="background:rgba(251,146,60,.12);color:var(--orange)"><i class="fas fa-file-alt"></i></div><span class="stat-change" style="background:rgba(251,146,60,.1);color:var(--orange)">Total</span></div><div class="stat-num" data-count="{{ total_exams }}">0</div><div class="stat-label">Exams Created</div></div>
+                <div class="stat-card animate-fade-in-up stagger-2"><div class="d-flex align-items-center justify-content-between mb-3"><div class="stat-icon" style="background:rgba(52,211,153,.1);color:var(--green)"><i class="fas fa-users"></i></div><span class="stat-change" style="background:rgba(52,211,153,.1);color:var(--green)">Active</span></div><div class="stat-num" data-count="{{ total_students }}">0</div><div class="stat-label">Total Students</div></div>
+                <div class="stat-card animate-fade-in-up stagger-3"><div class="d-flex align-items-center justify-content-between mb-3"><div class="stat-icon" style="background:rgba(34,211,238,.1);color:var(--cyan)"><i class="fas fa-chart-bar"></i></div><span class="stat-change" style="background:rgba(34,211,238,.1);color:var(--cyan)">Average</span></div><div class="stat-num" data-count="{{ avg_score|floatformat:0 }}" data-suffix="%">0%</div><div class="stat-label">Class Average</div></div>
+                <div class="stat-card animate-fade-in-up stagger-4"><div class="d-flex align-items-center justify-content-between mb-3"><div class="stat-icon" style="background:rgba(244,63,94,.1);color:var(--rose)"><i class="fas fa-pen-nib"></i></div><span class="stat-change" style="background:rgba(244,63,94,.1);color:var(--rose)">Pending</span></div><div class="stat-num" data-count="{{ pending_essays_count }}">0</div><div class="stat-label">Essays to Grade</div></div>
+            </div>
+
+            <!-- Main Grid -->
+            <div class="main-grid">
+                <div class="glass-card">
+                    <div class="section-header"><h4><i class="fas fa-file-alt me-2" style="color:var(--orange)"></i>My Exams</h4><a href="#" class="see-all" style="color:var(--orange)">View all →</a></div>
+                    {% for exam in exams %}
+                    <div class="exam-row">
+                        <div class="exam-bar" style="background:{% cycle 'var(--rose)' 'var(--amber)' 'var(--indigo)' 'var(--cyan)' 'var(--green)' %}"></div>
+                        <div style="flex:1">
+                            <div class="exam-name">{{ exam.title }}</div>
+                            <div class="exam-meta">
+                                {% if exam.subject %}<span><i class="fas fa-book"></i> {{ exam.subject }}</span>{% endif %}
+                                <span><i class="fas fa-users"></i> {{ exam.sub_count }} students</span>
+                                <span><i class="fas fa-clock"></i> {{ exam.duration_minutes }}min</span>
+                                <span><i class="fas fa-question-circle"></i> {{ exam.total_questions }} Qs</span>
+                            </div>
+                        </div>
+                        <span class="status-pill pill-{{ exam.status }}">{% if exam.status == 'live' %}<i class="fas fa-circle me-1" style="font-size:.4rem"></i>{% endif %}{{ exam.status|title }}</span>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'exams:manage_exam' exam.pk %}" class="btn-sm btn-edit">Manage</a>
+                            {% if exam.total_submissions %}<a href="{% url 'exams:exam_analytics' exam.pk %}" class="btn-sm btn-view">Analytics</a>{% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="padding:3rem;text-align:center;color:var(--muted)"><i class="fas fa-file-circle-plus fa-2x mb-2" style="display:block;opacity:.35"></i>No exams yet. Create your first exam!</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Right Panel -->
+                <div style="display:flex;flex-direction:column;gap:1.5rem">
+                    <!-- Active Students -->
+                    <div class="glass-card">
+                        <div class="section-header">
+                            <h4><i class="fas fa-user-clock me-2" style="color:var(--cyan)"></i>Active Students</h4>
+                            {% if active_students_count %}<span style="background:rgba(34,211,238,.12);color:var(--cyan);border:1px solid rgba(34,211,238,.2);padding:.18rem .6rem;border-radius:50px;font-size:.7rem;font-weight:700">{{ active_students_count }} taking exam{{ active_students_count|pluralize }}</span>{% endif %}
+                        </div>
+                        {% for sub in active_students %}
+                        <div class="stu-item">
+                            <div class="stu-av" style="background:linear-gradient(135deg,var(--cyan),var(--indigo))">{{ sub.student.avatar_initials|default:sub.student.username|slice:":2"|upper }}</div>
+                            <div style="flex:1">
+                                <div style="font-weight:600;font-size:.85rem;color:var(--white)">{{ sub.student.username }}</div>
+                                <div style="font-size:.72rem;color:var(--muted)">{{ sub.exam.title|truncatechars:20 }}</div>
+                            </div>
+                            <div style="font-size:.7rem;color:var(--cyan);display:flex;align-items:center;gap:.3rem"><i class="fas fa-circle" style="font-size:.4rem;animation:pulse 1.5s infinite"></i> In Progress</div>
+                        </div>
+                        {% empty %}
+                        <div style="padding:2rem;text-align:center;color:var(--muted);font-size:.84rem">No active students taking exams right now.</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Top Students -->
+                    <div class="glass-card">
+                        <div class="section-header"><h4><i class="fas fa-crown me-2" style="color:var(--amber)"></i>Top Students</h4></div>
+                        {% for sub in top_students %}
+                        <div class="stu-item">
+                            <div class="stu-av" style="background:linear-gradient(135deg,{% cycle 'var(--indigo),var(--violet)' 'var(--orange),var(--rose)' 'var(--cyan),var(--indigo)' 'var(--green),var(--cyan)' 'var(--violet),var(--rose)' %})">{{ sub.student.avatar_initials|default:sub.student.username|slice:":2"|upper }}</div>
+                            <div style="flex:1"><div style="font-weight:600;font-size:.85rem;color:var(--white)">{{ sub.student.username }}</div><div style="font-size:.72rem;color:var(--muted)">{{ sub.exam.title|truncatechars:20 }}</div></div>
+                            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:.9rem;color:{% if sub.score_percentage >= 70 %}var(--green){% else %}var(--amber){% endif %}">{{ sub.score_percentage }}%</div>
+                        </div>
+                        {% empty %}
+                        <div style="padding:2rem;text-align:center;color:var(--muted);font-size:.84rem">No submissions yet.</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="glass-card">
+                        <div class="section-header"><h4><i class="fas fa-history me-2" style="color:var(--cyan)"></i>Recent Submissions</h4></div>
+                        {% for sub in recent_submissions %}
+                        <div class="act-item">
+                            <div class="act-dot" style="background:rgba(52,211,153,.1);color:var(--green)"><i class="fas fa-check" style="font-size:.65rem"></i></div>
+                            <div><div style="font-size:.82rem;color:var(--text)"><strong>{{ sub.student.username }}</strong> submitted {{ sub.exam.title|truncatechars:18 }}</div><div style="font-size:.7rem;color:var(--muted)">{{ sub.submitted_at|timesince }} ago · {{ sub.score_percentage }}%</div></div>
+                        </div>
+                        {% empty %}
+                        <div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.82rem">No submissions yet.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Grid -->
+            <div class="bottom-grid">
+                <!-- Pending Essays -->
+                {% if pending_essays %}
+                <div class="glass-card" style="grid-column:1/-1">
+                    <div class="section-header"><h4><i class="fas fa-pen-to-square me-2" style="color:var(--rose)"></i>Pending Grading</h4>{% if pending_essays_count %}<span style="background:rgba(244,63,94,.1);color:var(--rose);border:1px solid rgba(244,63,94,.2);padding:.18rem .6rem;border-radius:50px;font-size:.7rem;font-weight:700">{{ pending_essays_count }} essay{{ pending_essays_count|pluralize }}</span>{% endif %}</div>
+                    {% for answer in pending_essays %}
+                    <a href="{% url 'exams:grade_essay' answer.pk %}" style="text-decoration:none">
+                        <div class="grade-item">
+                            <div style="width:38px;height:38px;border-radius:10px;background:rgba(99,102,241,.1);color:var(--indigo);display:flex;align-items:center;justify-content:center;flex-shrink:0"><i class="fas fa-pen-nib" style="font-size:.85rem"></i></div>
+                            <div style="flex:1"><div style="font-weight:600;font-size:.85rem;color:var(--white)">{{ answer.submission.student.username }}</div><div style="font-size:.73rem;color:var(--muted)">{{ answer.question.exam.title }} · Q{{ answer.question.order }}</div></div>
+                            <span style="background:rgba(251,146,60,.12);color:var(--orange);border:none;border-radius:8px;padding:.3rem .8rem;font-size:.72rem;font-weight:700">Grade →</span>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div style="padding:2rem;text-align:center;color:var(--muted);font-size:.84rem"><i class="fas fa-check-circle me-2" style="color:var(--green)"></i>All essays graded!</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const hr = new Date().getHours();
+    const g = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('greetText').textContent = `${g}, {{ instructor.full_name|default:instructor.username }} 👋`;
+    function closeCreate() { document.getElementById('createModal').classList.remove('show'); }
+    document.getElementById('createModal').addEventListener('click', function(e) { if (e.target === this) closeCreate(); });
+</script>
+{% endblock %}
+

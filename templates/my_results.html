@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}My Results — ExamSystem{% endblock %}
+{% block body %}
+<div class="layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <a href="{% url 'exams:student_dashboard' %}" class="logo-text" style="background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;display:block">ExamSystem</a>
+            <div class="logo-badge" style="background:rgba(99,102,241,.12);border-color:rgba(99,102,241,.25);color:#a5b4fc">Student Portal</div>
+        </div>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background:linear-gradient(135deg,var(--indigo),var(--violet))">{{ user.avatar_initials|default:user.username|slice:":2"|upper }}</div>
+            <div class="user-info">
+                <div class="uname">{{ user.username }}</div>
+                <div class="urole"><span class="online-dot"></span> Online</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+            <a href="{% url 'exams:student_dashboard' %}" class="nav-item-link">
+                <div class="nav-icon-w" style="background:rgba(99,102,241,.18);color:#a5b4fc"><i class="fas fa-home"></i></div>Dashboard
+            </a>
+            <a href="{% url 'exams:join_exam' %}" class="nav-item-link">
+                <div class="nav-icon-w"><i class="fas fa-plus-circle"></i></div>Join Exam
+            </a>
+            <a href="{% url 'exams:my_results' %}" class="nav-item-link active">
+                <div class="nav-icon-w"><i class="fas fa-trophy"></i></div>My Results
+            </a>
+            <div class="nav-section-label" style="margin-top:.5rem">Account</div>
+            <a href="/accounts/profile/" class="nav-item-link"><div class="nav-icon-w"><i class="fas fa-user-circle"></i></div>Profile</a>
+            <a href="/accounts/settings/" class="nav-item-link"><div class="nav-icon-w"><i class="fas fa-cog"></i></div>Settings</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main">
+        <div class="mobile-bar">
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent">ExamSystem</div>
+            <div class="d-flex gap-2">
+                <button class="icon-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+        <div class="topbar">
+            <div><h2 style="font-size:1.15rem;font-weight:800;color:var(--white)">My Results</h2><p id="liveClock" style="font-size:.76rem;color:var(--muted);margin-top:.08rem"></p></div>
+            <div class="d-flex gap-2 align-items-center">
+                <a href="#" class="icon-btn"><i class="fas fa-bell"></i></a>
+            </div>
+        </div>
+
+        <div class="page-content">
+            <div class="glass-card">
+                <div class="section-header">
+                    <h4><i class="fas fa-trophy me-2" style="color:var(--amber)"></i>All Exam Results</h4>
+                    <span style="font-size:.78rem;color:var(--muted)">{{ submissions|length }} total</span>
+                </div>
+                {% for sub in submissions %}
+                <a href="{% url 'exams:exam_result' sub.pk %}" style="text-decoration:none;display:flex;align-items:center;gap:1rem;padding:1rem 1.4rem;border-bottom:1px solid var(--border);transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.025)'" onmouseout="this.style.background='transparent'">
+                    <div style="width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:800;flex-shrink:0;background:{% if sub.grade_letter == 'A' %}rgba(52,211,153,.1){% elif sub.grade_letter == 'B' %}rgba(99,102,241,.1){% elif sub.grade_letter == 'C' %}rgba(251,191,36,.1){% else %}rgba(244,63,94,.1){% endif %};color:{% if sub.grade_letter == 'A' %}var(--green){% elif sub.grade_letter == 'B' %}#a5b4fc{% elif sub.grade_letter == 'C' %}var(--amber){% else %}var(--rose){% endif %}">{{ sub.grade_letter }}</div>
+                    <div style="flex:1">
+                        <div style="font-weight:600;font-size:.9rem;color:var(--white)">{{ sub.exam.title }}</div>
+                        <div style="font-size:.74rem;color:var(--muted)">{{ sub.submitted_at|date:"M d, Y" }} {% if sub.exam.subject %}· {{ sub.exam.subject }}{% endif %}</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:{% if sub.passed %}var(--green){% else %}var(--rose){% endif %}">{{ sub.score_percentage }}%</div>
+                        <div style="font-size:.7rem;color:var(--muted)">{% if sub.passed %}Passed{% else %}Failed{% endif %}</div>
+                    </div>
+                    <i class="fas fa-chevron-right" style="color:var(--muted);font-size:.75rem"></i>
+                </a>
+                {% empty %}
+                <div style="padding:4rem;text-align:center;color:var(--muted)">
+                    <i class="fas fa-trophy fa-3x mb-3" style="display:block;opacity:.3"></i>
+                    No results yet.<br><small>Join an exam to get started!</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+

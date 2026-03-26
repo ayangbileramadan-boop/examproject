@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Grade Essay{% endblock %}
+{% block body %}
+<div style="padding:1.2rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:1rem;background:rgba(7,7,26,.7);backdrop-filter:blur(18px)">
+    <a href="{% url 'exams:instructor_dashboard' %}" style="color:var(--muted);text-decoration:none;font-size:.85rem"><i class="fas fa-arrow-left me-1"></i>Dashboard</a>
+</div>
+<div style="max-width:700px;margin:0 auto;padding:2rem 1rem">
+    <h2 style="font-size:1.3rem;font-weight:800;color:var(--white);margin-bottom:.3rem">Grade Essay</h2>
+    <p style="color:var(--muted);font-size:.84rem;margin-bottom:2rem">{{ answer.question.exam.title }} · Question {{ answer.question.order }} · Max {{ max_marks }} marks</p>
+
+    <div class="glass-card p-3 mb-3">
+        <div style="font-size:.74rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Question</div>
+        <p style="color:var(--white);font-size:.93rem;line-height:1.65">{{ answer.question.text }}</p>
+    </div>
+
+    <div class="glass-card p-3 mb-3">
+        <div style="font-size:.74rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.5rem">Student: {{ answer.submission.student.username }}</div>
+        <p style="color:var(--text);font-size:.9rem;line-height:1.68;white-space:pre-wrap">{{ answer.answer_text|default:"(No answer provided)" }}</p>
+    </div>
+
+    <div class="glass-card p-3">
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom:1rem"><label style="display:block;font-size:.76rem;color:var(--muted);margin-bottom:.4rem">Marks Awarded (max {{ max_marks }})</label><input type="number" name="instructor_marks" class="form-inp" value="{{ answer.instructor_marks|default:'' }}" min="0" max="{{ max_marks }}" step="0.5" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:.7rem .9rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none" required></div>
+            <div style="margin-bottom:1.2rem"><label style="display:block;font-size:.76rem;color:var(--muted);margin-bottom:.4rem">Feedback (optional)</label><textarea name="instructor_feedback" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:.7rem .9rem;color:var(--white);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;resize:vertical;min-height:80px" placeholder="Write feedback for the student...">{{ answer.instructor_feedback }}</textarea></div>
+            <button type="submit" style="width:100%;padding:.82rem;border:none;border-radius:11px;background:linear-gradient(135deg,var(--orange),var(--rose));color:white;font-family:'Syne',sans-serif;font-weight:700;font-size:.92rem;cursor:pointer">Save Grade</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

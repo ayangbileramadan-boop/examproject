@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — ExamSystem{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root { --accent: var(--indigo); }
+    .welcome-banner { background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(139,92,246,.05)); border:1px solid rgba(99,102,241,.18); border-radius:22px; padding:1.8rem 2.2rem; display:flex; align-items:center; justify-content:space-between; margin-bottom:1.8rem; gap:1rem; }
+    .wb-text h1 { font-size:clamp(1.4rem,4vw,1.7rem); font-weight:800; letter-spacing:-1px; margin-bottom:.25rem; }
+    .admin-pill { display:inline-flex; align-items:center; gap:.35rem; background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.22); color:var(--indigo); padding:.22rem .75rem; border-radius:50px; font-size:.72rem; font-weight:600; margin-top:.55rem; }
+    .meta-num { font-family:'Syne',sans-serif; font-size:clamp(1.8rem,6vw,2.5rem); font-weight:800; background:linear-gradient(135deg,var(--indigo),var(--violet)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; }
+    .main-grid { display:grid; grid-template-columns:1fr 320px; gap:1.5rem; margin-bottom:1.8rem; }
+    .data-card { background:var(--card); border:1px solid var(--border); border-radius:20px; overflow:hidden; }
+    .section-header { padding:1.1rem 1.4rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem; }
+    .section-header h4 { font-size:clamp(.85rem,3.5vw,.93rem); font-weight:700; color:var(--white); margin:0; }
+    .user-row, .exam-row { padding:1rem 1.4rem; display:flex; align-items:center; gap:1rem; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    .user-row:last-child, .exam-row:last-child { border-bottom:none; }
+    .user-av, .act-dot { width:clamp(36px,8vw,40px); height:clamp(36px,8vw,40px); border-radius:11px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; color:white; flex-shrink:0; }
+    .user-info, .exam-info { flex:1; min-width:0; }
+    .user-name, .exam-title { font-weight:600; font-size:clamp(.85rem,3.5vw,.9rem); color:var(--white); }
+    .user-meta, .exam-meta { font-size:.73rem; color:var(--muted); display:flex; gap:.8rem; flex-wrap:wrap; }
+    .pill { padding:.22rem .65rem; border-radius:50px; font-size:.67rem; font-weight:700; }
+    .pill-approved { background:rgba(52,211,153,.12); color:var(--green); }
+    .pill-pending { background:rgba(251,191,36,.12); color:var(--amber); }
+    .pill-live { background:rgba(244,63,94,.14); color:var(--rose); }
+    .btn-sm { padding:.35rem .75rem; border-radius:8px; font-size:clamp(.65rem,3vw,.72rem); font-weight:700; border:none; cursor:pointer; min-height:36px; flex-shrink:0; }
+    .btn-approve { background:rgba(52,211,153,.12); color:var(--green); }
+    .btn-revoke { background:rgba(251,191,36,.12); color:var(--amber); }
+    .btn-delete { background:rgba(244,63,94,.08); color:var(--rose); }
+    .btn-view { background:rgba(99,102,241,.12); color:var(--indigo); }
+    .act-item { display:flex; gap:.8rem; padding:.85rem 1.4rem; border-bottom:1px solid rgba(255,255,255,.04); flex-wrap:wrap; }
+    .tab-nav { display:flex; gap:.5rem; padding:1rem 1.4rem; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    .tab-btn { padding:.5rem 1rem; border-radius:8px; font-size:clamp(.75rem,3vw,.8rem); font-weight:600; background:transparent; border:none; color:var(--muted); cursor:pointer; white-space:nowrap; flex:1; min-width:80px; }
+    .tab-btn.active { background:rgba(99,102,241,.15); color:var(--indigo); }
+    .tab-content { display:none; }
+    .tab-content.active { display:block; }
+    .stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.8rem; }
+    .stat-card { background:var(--card); border:1px solid var(--border); border-radius:19px; padding:clamp(1rem,4vw,1.3rem); }
+    .stat-icon { width:clamp(36px,10vw,40px); height:clamp(36px,10vw,40px); border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:.95rem; }
+    .stat-num { font-family:'Syne',sans-serif; font-size:clamp(1.5rem,7vw,1.9rem); font-weight:800; color:var(--white); line-height:1; margin:.8rem 0 .2rem; }
+    .stat-label { font-size:.76rem; color:var(--muted); }
+    .quick-actions { display:flex; gap:.8rem; flex-wrap:wrap; margin-bottom:1.5rem; }
+    .qa-btn { display:flex; align-items:center; gap:.6rem; padding:.7rem 1.2rem; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:12px; color:var(--text); text-decoration:none; font-size:clamp(.78rem,3vw,.82rem); flex:1; min-width:140px; justify-content:center; }
+    .qa-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .admin-link { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem 1rem; background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:10px; color:var(--muted); text-decoration:none; font-size:.8rem; white-space:nowrap; }
+    
+    /* Responsive overrides */
+    @media(max-width:992px){
+        .main-grid{grid-template-columns:1fr; gap:1rem}
+    }
+    @media(max-width:768px){
+        .welcome-banner{flex-direction:column; text-align:center; padding:1.5rem}
+        .wb-text, .d-flex.gap-4.text-center{max-width:100%; margin-bottom:1rem}
+        .quick-actions{flex-direction:column}
+        .qa-btn{max-width:none}
+        .tab-nav{flex-direction:column; gap:.25rem}
+        .tab-btn{padding:.6rem}
+        .section-header{flex-direction:column; align-items:flex-start; gap:.75rem; padding:1rem}
+        .user-row, .exam-row, .act-item{flex-direction:column; align-items:flex-start; gap:.75rem; padding:1rem}
+        .user-meta, .exam-meta{order:-1; width:100%; margin-bottom:.5rem}
+    }
+    @media(max-width:480px){
+        .stat-grid{gap:.75rem}
+        .btn-sm{padding:.4rem .85rem}
+        .pill{font-size:.65rem; padding:.2rem .6rem}
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <a href="/admin-panel/" class="logo-text" style="background:linear-gradient(135deg,var(--indigo),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent">ExamSystem</a>
+            <div class="logo-badge" style="background:rgba(99,102,241,.12);color:var(--indigo)">Admin Portal</div>
+        </div>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background:linear-gradient(135deg,var(--indigo),var(--violet))">{{ user.avatar_initials|default:user.username|slice:":2"|upper }}</div>
+            <div class="user-info">
+                <div class="uname">{{ user.username }}</div>
+                <div class="urole" style="color:var(--indigo)">Administrator</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+            <a href="/admin-panel/" class="nav-item-link active"><div class="nav-icon-w" style="background:rgba(99,102,241,.18);color:var(--indigo)"><i class="fas fa-shield-alt"></i></div>Dashboard</a>
+            <a href="#" class="nav-item-link" onclick="switchTab('overview')"><div class="nav-icon-w"><i class="fas fa-chart-line"></i></div>Analytics</a>
+            <a href="#" class="nav-item-link" onclick="switchTab('exams')"><div class="nav-icon-w"><i class="fas fa-file-alt"></i></div>Exams</a>
+            <a href="#" class="nav-item-link" onclick="switchTab('students')"><div class="nav-icon-w"><i class="fas fa-user-graduate"></i></div>Students</a>
+            <a href="#" class="nav-item-link" onclick="switchTab('instructors')"><div class="nav-icon-w"><i class="fas fa-chalkboard-teacher"></i></div>Instructors</a>
+            <div class="nav-section-label">System</div>
+            <a href="/admin/" target="_blank" class="nav-item-link"><div class="nav-icon-w"><i class="fas fa-cogs"></i></div>Django Admin</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main">
+<div class="mobile-bar">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;background:linear-gradient(135deg,var(--indigo),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent">ExamSystem Admin</div>
+    <div class="d-flex gap-2">
+        <a href="/admin/" target="_blank" class="icon-btn"><i class="fas fa-cogs"></i></a>
+        <button class="icon-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    </div>
+</div>
+<div class="topbar">
+    <div><h2 style="font-size:1.15rem;font-weight:800;color:var(--white)">Admin Dashboard</h2></div>
+    <div class="d-flex gap-2 align-items-center">
+        <a href="/admin/" target="_blank" class="admin-link"><i class="fas fa-cogs"></i> Django Admin</a>
+    </div>
+</div>
+
+        <div class="page-content">
+            <div class="welcome-banner">
+                <div class="wb-text">
+                    <h1 id="greetText">Welcome, Admin!</h1>
+                    <p style="color:var(--muted)">System overview and management.</p>
+                    <div class="admin-pill"><i class="fas fa-shield-check"></i> Super Administrator</div>
+                </div>
+                <div class="d-flex gap-4 text-center">
+                    <div><div class="meta-num">{{ total_students }}</div><div style="font-size:.72rem;color:var(--muted)">Students</div></div>
+                    <div><div class="meta-num">{{ total_instructors }}</div><div style="font-size:.72rem;color:var(--muted)">Instructors</div></div>
+                    <div><div class="meta-num">{{ total_exams }}</div><div style="font-size:.72rem;color:var(--muted)">Exams</div></div>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+                <a href="/admin/auth/user/add/" target="_blank" class="qa-btn"><div class="qa-icon" style="background:rgba(52,211,153,.12);color:var(--green)"><i class="fas fa-user-plus"></i></div>Add User</a>
+                <a href="/admin/exams/exam/add/" target="_blank" class="qa-btn"><div class="qa-icon" style="background:rgba(244,63,94,.12);color:var(--rose)"><i class="fas fa-plus-circle"></i></div>Create Exam</a>
+                <a href="/admin/" target="_blank" class="qa-btn"><div class="qa-icon" style="background:rgba(99,102,241,.12);color:var(--indigo)"><i class="fas fa-cogs"></i></div>Django Admin</a>
+            </div>
+
+            <div class="stat-grid">
+                <div class="stat-card"><div class="stat-icon" style="background:rgba(52,211,153,.1);color:var(--green)"><i class="fas fa-user-graduate"></i></div><div class="stat-num">{{ total_students }}</div><div class="stat-label">Total Students</div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:rgba(251,191,36,.1);color:var(--amber)"><i class="fas fa-chalkboard-teacher"></i></div><div class="stat-num">{{ total_instructors }}</div><div class="stat-label">Instructors</div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:rgba(244,63,94,.1);color:var(--rose)"><i class="fas fa-file-alt"></i></div><div class="stat-num">{{ total_exams }}</div><div class="stat-label">Total Exams</div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:rgba(34,211,238,.1);color:var(--cyan)"><i class="fas fa-clipboard-check"></i></div><div class="stat-num">{{ total_submissions }}</div><div class="stat-label">Submissions</div></div>
+            </div>
+
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="switchTab('exams')">Exams</button>
+                <button class="tab-btn" onclick="switchTab('students')">Students</button>
+                <button class="tab-btn" onclick="switchTab('instructors')">Instructors</button>
+            </div>
+
+            <div id="tab-overview" class="tab-content active">
+                <div class="main-grid">
+                    <div class="data-card">
+                        <div class="section-header"><h4><i class="fas fa-user-clock" style="color:var(--amber)"></i> Pending Approvals</h4></div>
+                        {% if pending_instructors %}
+                        {% for instructor in pending_instructors %}
+                        <div class="user-row">
+                            <div class="user-av" style="background:linear-gradient(135deg,var(--amber),var(--orange))">{{ instructor.avatar_initials|default:instructor.username|slice:":2"|upper }}</div>
+                            <div class="user-info">
+                                <div class="user-name">{{ instructor.full_name|default:instructor.username }}</div>
+                                <div class="user-meta"><span>{{ instructor.email }}</span></div>
+                            </div>
+                            <form method="post" action="{% url 'exams:manage_user' instructor.pk %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button type="submit" class="btn-sm btn-approve">Approve</button></form>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div style="padding:2rem;text-align:center;color:var(--muted)">No pending approvals.</div>
+                        {% endif %}
+                    </div>
+                    <div class="data-card">
+                        <div class="section-header"><h4><i class="fas fa-history" style="color:var(--cyan)"></i> Recent Submissions</h4></div>
+                        {% for sub in recent_submissions %}
+                        <div class="act-item">
+                            <div class="act-dot" style="background:rgba(52,211,153,.1);color:var(--green)"><i class="fas fa-check"></i></div>
+                            <div><strong>{{ sub.student.username }}</strong> - {{ sub.exam.title }}<br><span style="font-size:.7rem;color:var(--muted)">{{ sub.submitted_at|timesince }} ago</span></div>
+                        </div>
+                        {% empty %}
+                        <div style="padding:2rem;text-align:center;color:var(--muted)">No submissions yet.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-exams" class="tab-content">
+                <div class="data-card">
+                    <div class="section-header"><h4><i class="fas fa-file-alt" style="color:var(--rose)"></i> All Exams</h4><a href="/admin/exams/exam/add/" target="_blank" class="btn-sm btn-view">Add Exam</a></div>
+                    {% for exam in exams %}
+                    <div class="exam-row">
+                        <div class="exam-info">
+                            <div class="exam-title">{{ exam.title }}</div>
+                            <div class="exam-meta"><span>{{ exam.instructor.username }}</span><span>{{ exam.code }}</span><span>{{ exam.total_submissions }} submissions</span></div>
+                        </div>
+                        <span class="pill pill-live">{{ exam.status }}</span>
+                        <a href="/admin/exams/exam/{{ exam.pk }}/change/" target="_blank" class="btn-sm btn-view">Edit</a>
+                    </div>
+                    {% empty %}
+                    <div style="padding:3rem;text-align:center;color:var(--muted)">No exams found.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="tab-students" class="tab-content">
+                <div class="data-card">
+                    <div class="section-header"><h4><i class="fas fa-user-graduate" style="color:var(--green)"></i> All Students</h4></div>
+                    {% for student in students %}
+                    <div class="user-row">
+                        <div class="user-av" style="background:linear-gradient(135deg,var(--green),var(--cyan))">{{ student.avatar_initials|default:student.username|slice:":2"|upper }}</div>
+                        <div class="user-info">
+                            <div class="user-name">{{ student.full_name|default:student.username }}</div>
+                            <div class="user-meta"><span>{{ student.email }}</span></div>
+                        </div>
+                        <span class="pill pill-approved">Active</span>
+                    </div>
+                    {% empty %}
+                    <div style="padding:3rem;text-align:center;color:var(--muted)">No students found.</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div id="tab-instructors" class="tab-content">
+                <div class="data-card">
+                    <div class="section-header"><h4><i class="fas fa-chalkboard-teacher" style="color:var(--amber)"></i> All Instructors</h4></div>
+                    {% for instructor in instructors %}
+                    <div class="user-row">
+                        <div class="user-av" style="background:linear-gradient(135deg,var(--amber),var(--orange))">{{ instructor.avatar_initials|default:instructor.username|slice:":2"|upper }}</div>
+                        <div class="user-info">
+                            <div class="user-name">{{ instructor.full_name|default:instructor.username }}</div>
+                            <div class="user-meta"><span>{{ instructor.email }}</span></div>
+                        </div>
+                        {% if instructor.is_approved %}
+                        <span class="pill pill-approved">Approved</span>
+                        <form method="post" action="{% url 'exams:manage_user' instructor.pk %}">{% csrf_token %}<input type="hidden" name="action" value="revoke"><button type="submit" class="btn-sm btn-revoke">Revoke</button></form>
+                        {% else %}
+                        <span class="pill pill-pending">Pending</span>
+                        <form method="post" action="{% url 'exams:manage_user' instructor.pk %}">{% csrf_token %}<input type="hidden" name="action" value="approve"><button type="submit" class="btn-sm btn-approve">Approve</button></form>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div style="padding:3rem;text-align:center;color:var(--muted)">No instructors found.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    event.target.classList.add('active');
+}
+const hr = new Date().getHours();
+document.getElementById('greetText').textContent = (hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening') + ', Admin!';
+</script>
+{% endblock %}
+

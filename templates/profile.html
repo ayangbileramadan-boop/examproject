@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Profile — ExamSystem{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background:#06061a; }
+    .profile-header { background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(139,92,246,.05)); border:1px solid rgba(99,102,241,.18); border-radius:22px; padding:2.5rem; text-align:center; margin-bottom:1.8rem; position:relative; overflow:hidden; }
+    .profile-header::before { content:''; position:absolute; top:-50px; left:-50px; width:200px; height:200px; background:radial-gradient(circle,rgba(99,102,241,.15),transparent 70%); }
+    .avatar-large { width:100px; height:100px; border-radius:50%; background:linear-gradient(135deg,var(--indigo),var(--violet)); display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-size:2.5rem; font-weight:800; color:white; margin:0 auto 1rem; border:4px solid rgba(255,255,255,.1); box-shadow:0 10px 40px rgba(99,102,241,.3); }
+    .profile-name { font-size:1.5rem; font-weight:800; color:var(--white); margin-bottom:.3rem; }
+    .profile-role { display:inline-flex; align-items:center; gap:.4rem; background:rgba(99,102,241,.15); border:1px solid rgba(99,102,241,.25); color:#a5b4fc; padding:.3rem .9rem; border-radius:50px; font-size:.75rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+    .info-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:1.8rem; }
+    .info-row { display:flex; padding:.9rem 0; border-bottom:1px solid rgba(255,255,255,.05); }
+    .info-row:last-child { border-bottom:none; }
+    .info-label { width:140px; font-size:.82rem; color:var(--muted); font-weight:500; }
+    .info-value { flex:1; font-size:.88rem; color:var(--white); }
+    .btn-edit { background:linear-gradient(135deg,var(--indigo),var(--violet)); color:white; border:none; padding:.65rem 1.5rem; border-radius:10px; font-family:'Syne',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer; transition:all .3s; text-decoration:none; display:inline-flex; align-items:center; gap:.5rem; }
+    .btn-edit:hover { transform:translateY(-2px); box-shadow:0 10px 25px rgba(99,102,241,.35); }
+    @media(max-width:600px){ .info-row{flex-direction:column;gap:.3rem} .info-label{width:auto} }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <a href="{% if user.is_instructor %}{% url 'exams:instructor_dashboard' %}{% else %}{% url 'exams:student_dashboard' %}{% endif %}" class="logo-text" style="background:linear-gradient(135deg,{% if user.is_instructor %}var(--orange),var(--rose){% else %}var(--cyan),var(--violet){% endif %});-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;display:block">ExamSystem</a>
+            <div class="logo-badge" style="background:{% if user.is_instructor %}rgba(251,146,60,.12){% else %}rgba(99,102,241,.12){% endif %};border-color:{% if user.is_instructor %}rgba(251,146,60,.25){% else %}rgba(99,102,241,.25){% endif %};color:{% if user.is_instructor %}var(--orange){% else %}var(--indigo){% endif %}">{% if user.is_instructor %}Instructor Portal{% else %}Student Portal{% endif %}</div>
+        </div>
+        <div class="sidebar-user">
+            <div class="user-avatar" style="background:linear-gradient(135deg,{% if user.is_instructor %}var(--orange),var(--rose){% else %}var(--indigo),var(--violet){% endif %})">{{ user.avatar_initials|default:user.username|slice:":2"|upper }}</div>
+            <div class="user-info">
+                <div class="uname">{{ user.username }}</div>
+                <div class="urole"><span class="online-dot"></span> Online</div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+            <a href="{% if user.is_instructor %}{% url 'exams:instructor_dashboard' %}{% else %}{% url 'exams:student_dashboard' %}{% endif %}" class="nav-item-link">
+                <div class="nav-icon-w" style="background:{% if user.is_instructor %}rgba(251,146,60,.18){% else %}rgba(99,102,241,.18){% endif %};color:{% if user.is_instructor %}var(--orange){% else %}var(--indigo){% endif %}"><i class="fas fa-home"></i></div>Dashboard
+            </a>
+            <a href="/accounts/profile/" class="nav-item-link active">
+                <div class="nav-icon-w"><i class="fas fa-user"></i></div>Profile
+            </a>
+            <a href="/accounts/settings/" class="nav-item-link">
+                <div class="nav-icon-w"><i class="fas fa-cog"></i></div>Settings
+            </a>
+            <div class="nav-section-label" style="margin-top:.5rem">Account</div>
+            <a href="#" class="nav-item-link"><div class="nav-icon-w"><i class="fas fa-bell"></i></div>Notifications</a>
+        </nav>
+        <div class="sidebar-bottom">
+            <a href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <main class="main">
+        <div class="mobile-bar">
+            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent">ExamSystem</div>
+            <div class="d-flex gap-2">
+                <button class="icon-btn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+        <div class="topbar">
+            <div><h2 style="font-size:1.15rem;font-weight:800;color:var(--white)">Profile</h2><p id="liveClock" style="font-size:.76rem;color:var(--muted);margin-top:.08rem"></p></div>
+            <div class="d-flex gap-2 align-items-center">
+                <a href="/accounts/settings/" class="icon-btn"><i class="fas fa-cog"></i></a>
+            </div>
+        </div>
+
+        <div class="page-content" style="max-width:700px">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="avatar-large">{{ user.avatar_initials|default:user.username|slice:":2"|upper }}</div>
+                <h1 class="profile-name">{{ user.full_name|default:user.username }}</h1>
+                <span class="profile-role">{% if user.is_instructor %}<i class="fas fa-chalkboard-teacher me-1"></i>Instructor{% else %}<i class="fas fa-graduation-cap me-1"></i>Student{% endif %}</span>
+            </div>
+
+            <!-- Profile Info -->
+            <div class="info-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 style="color:var(--white);font-weight:700;margin:0">Account Information</h4>
+                    <a href="/accounts/settings/" class="btn-edit"><i class="fas fa-edit"></i> Edit Profile</a>
+                </div>
+                
+                <div class="info-row">
+                    <span class="info-label">Username</span>
+                    <span class="info-value">{{ user.username }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{ user.email|default:"Not set" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">{{ user.full_name|default:"Not set" }}</span>
+                </div>
+                {% if user.is_instructor %}
+                <div class="info-row">
+                    <span class="info-label">Department</span>
+                    <span class="info-value">{{ user.department|default:"Not set" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Staff ID</span>
+                    <span class="info-value">{{ user.staff_id|default:"Not set" }}</span>
+                </div>
+                {% endif %}
+                <div class="info-row">
+                    <span class="info-label">Account Status</span>
+                    <span class="info-value">
+                        {% if user.is_approved %}
+                        <span style="color:var(--green)"><i class="fas fa-check-circle me-1"></i>Verified</span>
+                        {% else %}
+                        <span style="color:var(--amber)"><i class="fas fa-clock me-1"></i>Pending Approval</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Member Since</span>
+                    <span class="info-value">{{ user.date_joined|date:"F d, Y" }}</span>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
+

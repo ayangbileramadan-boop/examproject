@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% block title %}{{ exam.title }} — ExamSystem{% endblock %}
+
+{% block extra_css %}
+<style>
+    body { background:#06061a; }
+    .exam-header { background:rgba(255,255,255,.03); border-bottom:1px solid var(--border); padding:1rem 2rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; backdrop-filter:blur(18px); }
+    .exam-wrap { max-width:820px; margin:0 auto; padding:2rem 1rem 4rem; }
+    .question-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:2rem; margin-bottom:1.4rem; transition:border-color .22s; }
+    .question-card:focus-within { border-color:rgba(99,102,241,.35); }
+    .q-num { font-size:.72rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.1em; margin-bottom:.6rem; }
+    .q-text { font-size:1rem; font-weight:500; color:var(--white); line-height:1.65; margin-bottom:1.4rem; }
+    .q-marks { display:inline-block; background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.2); color:#a5b4fc; border-radius:6px; padding:.18rem .6rem; font-size:.7rem; font-weight:700; margin-left:.6rem; vertical-align:middle; }
+    .option-label { display:flex; align-items:flex-start; gap:.8rem; padding:.75rem 1rem; border:1.5px solid rgba(255,255,255,.07); border-radius:12px; cursor:pointer; margin-bottom:.6rem; transition:all .2s; }
+    .option-label:last-child { margin-bottom:0; }
+    .option-label:hover { border-color:rgba(99,102,241,.3); background:rgba(99,102,241,.05); }
+    .option-label input[type=radio] { accent-color:var(--indigo); margin-top:2px; flex-shrink:0; width:16px; height:16px; }
+    .option-label input[type=radio]:checked + span { color:var(--white); }
+    .option-label:has(input:checked) { border-color:rgba(99,102,241,.5); background:rgba(99,102,241,.08); }
+    .option-text { font-size:.9rem; color:var(--text); line-height:1.5; }
+    .textarea-ans { width:100%; background:rgba(255,255,255,.04); border:1.5px solid rgba(255,255,255,.09); border-radius:12px; padding:.85rem 1rem; color:var(--white); font-family:'DM Sans',sans-serif; font-size:.9rem; resize:vertical; min-height:110px; outline:none; transition:border-color .22s; }
+    .textarea-ans:focus { border-color:rgba(99,102,241,.45); }
+    .textarea-ans::placeholder { color:rgba(255,255,255,.25); }
+    .timer-display { font-family:'Syne',sans-serif; font-size:1.25rem; font-weight:800; padding:.4rem 1.1rem; border-radius:10px; transition:all .3s; }
+    .timer-ok { background:rgba(52,211,153,.1); color:var(--green); border:1px solid rgba(52,211,153,.2); }
+    .timer-warn { background:rgba(251,191,36,.1); color:var(--amber); border:1px solid rgba(251,191,36,.2); }
+    .timer-danger { background:rgba(244,63,94,.12); color:var(--rose); border:1px solid rgba(244,63,94,.25); animation:pulseBorder 1s infinite; }
+    @keyframes pulseBorder{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,0)}50%{box-shadow:0 0 0 5px rgba(244,63,94,.15)}}
+    .submit-bar { position:fixed; bottom:0; left:0; right:0; background:rgba(6,6,26,.92); backdrop-filter:blur(20px); border-top:1px solid var(--border); padding:1rem 2rem; display:flex; align-items:center; justify-content:space-between; z-index:100; }
+    .btn-submit-exam { background:linear-gradient(135deg,var(--indigo),var(--violet)); color:white; border:none; border-radius:12px; padding:.8rem 2rem; font-family:'Syne',sans-serif; font-weight:700; font-size:.95rem; cursor:pointer; transition:all .28s; }
+    .btn-submit-exam:hover { transform:translateY(-2px); box-shadow:0 10px 25px rgba(99,102,241,.38); }
+    .confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(8px); z-index:200; display:none; align-items:center; justify-content:center; }
+    .confirm-overlay.show { display:flex; }
+    .confirm-box { background:#0f0f26; border:1px solid rgba(99,102,241,.22); border-radius:22px; padding:2.2rem; width:100%; max-width:380px; text-align:center; animation:popIn .3s ease; }
+    @keyframes popIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+</style>
+{% endblock %}
+
+{% block body %}
+<!-- Confirm Submit -->
+<div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+        <div style="width:65px;height:65px;background:rgba(99,102,241,.12);border:2px solid rgba(99,102,241,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.3rem;font-size:1.6rem;color:#a5b4fc"><i class="fas fa-paper-plane"></i></div>
+        <h3 style="font-size:1.2rem;font-weight:800;color:var(--white);margin-bottom:.5rem">Submit Exam?</h3>
+        <p style="color:var(--muted);font-size:.86rem;margin-bottom:1.8rem">You can't change answers after submission. Make sure you've reviewed all questions.</p>
+        <div class="d-flex gap-2">
+            <button onclick="document.getElementById('confirmOverlay').classList.remove('show')" style="flex:1;padding:.75rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:11px;color:var(--muted);cursor:pointer;font-size:.88rem;transition:all .2s">Cancel</button>
+            <button onclick="document.getElementById('examForm').submit()" style="flex:1;padding:.75rem;background:linear-gradient(135deg,var(--indigo),var(--violet));border:none;border-radius:11px;color:white;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;font-size:.88rem">Submit Now</button>
+        </div>
+    </div>
+</div>
+
+<!-- Exam Header -->
+<div class="exam-header">
+    <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--white)">{{ exam.title }}</div>
+        {% if exam.subject %}<div style="font-size:.74rem;color:var(--muted)">{{ exam.subject }}</div>{% endif %}
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <div style="font-size:.8rem;color:var(--muted)"><i class="fas fa-question-circle me-1"></i>{{ questions|length }} questions</div>
+        {% if exam_is_upcoming %}
+        <div style="background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.25);color:var(--amber);padding:.4rem 1rem;border-radius:10px;font-size:.8rem;font-weight:600"><i class="fas fa-clock me-1"></i>Starting Soon</div>
+        {% else %}
+        <div id="timerDisplay" class="timer-display timer-ok"><i class="fas fa-clock me-1"></i><span id="timerText">--:--</span></div>
+        {% endif %}
+    </div>
+</div>
+
+<form method="post" id="examForm">
+    {% csrf_token %}
+    <div class="exam-wrap">
+        {% if exam.instructions %}
+        <div style="background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.18);border-radius:14px;padding:1.1rem 1.4rem;margin-bottom:1.8rem">
+            <div style="font-size:.74rem;font-weight:700;color:#a5b4fc;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem">Instructions</div>
+            <p style="font-size:.88rem;color:var(--text);line-height:1.65;margin:0">{{ exam.instructions }}</p>
+        </div>
+        {% endif %}
+
+        {% for question in questions %}
+        <div class="question-card">
+            <div class="q-num">Question {{ forloop.counter }} of {{ questions|length }} <span class="q-marks">{{ question.marks }} mark{{ question.marks|pluralize }}</span></div>
+            <div class="q-text">{{ question.text }}</div>
+
+            {% if question.question_type == 'mcq' %}
+                {% if question.option_a %}
+                <label class="option-label">
+                    <input type="radio" name="q_{{ question.pk }}" value="A" {% if existing_answers|default:"" %}{% endif %} {% if exam_is_upcoming %}disabled{% endif %}>
+                    <span class="option-text"><strong style="color:#a5b4fc">A.</strong> {{ question.option_a }}</span>
+                </label>
+                {% endif %}
+                {% if question.option_b %}
+                <label class="option-label">
+                    <input type="radio" name="q_{{ question.pk }}" value="B" {% if exam_is_upcoming %}disabled{% endif %}>
+                    <span class="option-text"><strong style="color:#a5b4fc">B.</strong> {{ question.option_b }}</span>
+                </label>
+                {% endif %}
+                {% if question.option_c %}
+                <label class="option-label">
+                    <input type="radio" name="q_{{ question.pk }}" value="C" {% if exam_is_upcoming %}disabled{% endif %}>
+                    <span class="option-text"><strong style="color:#a5b4fc">C.</strong> {{ question.option_c }}</span>
+                </label>
+                {% endif %}
+                {% if question.option_d %}
+                <label class="option-label">
+                    <input type="radio" name="q_{{ question.pk }}" value="D" {% if exam_is_upcoming %}disabled{% endif %}>
+                    <span class="option-text"><strong style="color:#a5b4fc">D.</strong> {{ question.option_d }}</span>
+                </label>
+                {% endif %}
+
+            {% elif question.question_type == 'true_false' %}
+                <label class="option-label">
+                    <input type="radio" name="q_{{ question.pk }}" value="TRUE" {% if exam_is_upcoming %}disabled{% endif %}>
+                    <span class="option-text"><i class="fas fa-check-circle me-1" style="color:var(--green)"></i>True</span>
+                </label>
+                <label class="option-label">
+                    <input type="radio" name="q_{{ question.pk }}" value="FALSE" {% if exam_is_upcoming %}disabled{% endif %}>
+                    <span class="option-text"><i class="fas fa-times-circle me-1" style="color:var(--rose)"></i>False</span>
+                </label>
+
+            {% else %}
+                <textarea name="q_{{ question.pk }}" class="textarea-ans" placeholder="Write your answer here..." {% if exam_is_upcoming %}disabled{% endif %}>{% if existing_answers %}{{ existing_answers|default:"" }}{% endif %}</textarea>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Submit Bar -->
+    <div class="submit-bar">
+        <div style="font-size:.82rem;color:var(--muted)"><span id="answeredCount">0</span> / {{ questions|length }} answered</div>
+        {% if exam_is_upcoming %}
+        <button type="button" class="btn-submit-exam" style="background:rgba(99,102,241,.3);cursor:not-allowed" disabled>
+            <i class="fas fa-clock me-2"></i>Exam Not Started
+        </button>
+        {% else %}
+        <button type="button" class="btn-submit-exam" onclick="document.getElementById('confirmOverlay').classList.add('show')">
+            <i class="fas fa-paper-plane me-2"></i>Submit Exam
+        </button>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    {% if not exam_is_upcoming %}
+    const autoSubmitTs = {{ auto_submit_ts }};
+    const timerText = document.getElementById('timerText');
+    const timerDisplay = document.getElementById('timerDisplay');
+
+    function updateTimer() {
+        const remaining = autoSubmitTs - Date.now();
+        if (remaining <= 0) {
+            timerText.textContent = '00:00';
+            document.getElementById('examForm').submit();
+            return;
+        }
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        timerText.textContent = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+        timerDisplay.className = 'timer-display ' + (mins >= 10 ? 'timer-ok' : mins >= 5 ? 'timer-warn' : 'timer-danger');
+    }
+    updateTimer(); setInterval(updateTimer, 1000);
+    {% endif %}
+
+    // Answered counter
+    function countAnswered() {
+        const answered = document.querySelectorAll('input[type=radio]:checked, textarea').length;
+        let filled = document.querySelectorAll('input[type=radio]:checked').length;
+        document.querySelectorAll('textarea').forEach(t => { if (t.value.trim()) filled++; });
+        document.getElementById('answeredCount').textContent = filled;
+    }
+    document.querySelectorAll('input[type=radio], textarea').forEach(el => el.addEventListener('change', countAnswered));
+    countAnswered();
+
+    // Restore existing answers
+    {% for q_id, ans in existing_answers.items %}
+    const inp_{{ q_id }} = document.querySelector(`input[name="q_{{ q_id }}"][value="{{ ans }}"]`);
+    if (inp_{{ q_id }}) inp_{{ q_id }}.checked = true;
+    const ta_{{ q_id }} = document.querySelector(`textarea[name="q_{{ q_id }}"]`);
+    if (ta_{{ q_id }}) ta_{{ q_id }}.value = "{{ ans|escapejs }}";
+    {% endfor %}
+    countAnswered();
+</script>
+{% endblock %}
