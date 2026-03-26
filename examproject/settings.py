@@ -1,4 +1,7 @@
 from pathlib import Path
+import os
+import dj_database_url
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -32,8 +35,8 @@ ROOT_URLCONF = 'examproject.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-'DIRS': [BASE_DIR / 'templates'],
+        'BACKEND': 'django.template.backends.django.Templates',
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,18 +65,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Dual DB support: Local SQLite / Render PostgreSQL/MySQL
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'exam_db',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
-    }
+    'default': dj_database_url.parse(
+        config('DATABASE_URL', default=f'sqlite:///{BASE_DIR / "db.sqlite3"}')
+    )
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -84,7 +80,7 @@ LOGOUT_REDIRECT_URL = '/'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
-# Email Configuration (Mailpit)
+# Email Configuration (Mailpit local)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
@@ -95,3 +91,4 @@ EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 10
 
 DEFAULT_FROM_EMAIL = 'noreply@examsystem.com'
+
