@@ -331,7 +331,8 @@
                 <button class="role-tab" id="tab-instructor" onclick="switchRole('instructor')"><i class="fas fa-chalkboard-teacher"></i> Instructor</button>
             </div>
             <!-- Student Form -->
-            <form id="form-student" method="post" action="{% url 'accounts:student_signup' %}">
+            <form id="form-student" method="post" action="/accounts/signup/student/">
+
 
                 {% csrf_token %}
                 <div class="row g-2">
@@ -343,7 +344,11 @@
                 <button type="submit" class="btn-submit mt-2">Create Student Account</button>
             </form>
             <!-- Instructor Form -->
-            <form id="form-instructor" method="post" action="{% url 'accounts:instructor_signup' %}" style="display:none">
+            <form id="form-instructor" method="post" action="/accounts/signup/instructor/" style="display:none">
+</xai:function_call name="edit_file"> 
+
+<xai:function_call name="edit_file">
+<parameter name="path">c:/Users/MAKAVELI/examproject/exam/templates/landing.html
 </xai:function_call name="edit_file">
 <parameter name="path">c:/Users/MAKAVELI/examproject/exam/TODO.md
                 {% csrf_token %}
