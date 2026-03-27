@@ -332,6 +332,7 @@
             </div>
             <!-- Student Form -->
             <form id="form-student" method="post" action="{% url 'accounts:student_signup' %}">
+
                 {% csrf_token %}
                 <div class="row g-2">
                     <div class="col-md-6 form-grp"><label class="form-lbl">Email address</label><input type="email" name="email" class="form-inp" placeholder="you@example.com" required></div>
@@ -343,6 +344,8 @@
             </form>
             <!-- Instructor Form -->
             <form id="form-instructor" method="post" action="{% url 'accounts:instructor_signup' %}" style="display:none">
+</xai:function_call name="edit_file">
+<parameter name="path">c:/Users/MAKAVELI/examproject/exam/TODO.md
                 {% csrf_token %}
                 <div class="row g-2">
                     <div class="col-md-6 form-grp"><label class="form-lbl">Email address</label><input type="email" name="email" class="form-inp" placeholder="you@university.edu.ng" required></div>
