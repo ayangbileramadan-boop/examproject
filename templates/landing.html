@@ -20,7 +20,6 @@
     .btn-primary-h:hover { transform:translateY(-3px); box-shadow:0 18px 45px rgba(99,102,241,.4); color:white; }
     .btn-ghost-h { background:transparent; color:var(--text); border:1.5px solid rgba(255,255,255,.14); padding:.88rem 2.1rem; border-radius:12px; font-family:'Syne',sans-serif; font-weight:700; font-size:.92rem; cursor:pointer; transition:all .3s; text-decoration:none; display:inline-block; }
     .btn-ghost-h:hover { border-color:var(--cyan); color:var(--cyan); transform:translateY(-3px); }
-    /* mock card */
     .mock-card { background:rgba(255,255,255,.04); backdrop-filter:blur(18px); border:1px solid rgba(255,255,255,.1); border-radius:22px; padding:1.5rem; }
     .timer-pill { background:rgba(244,63,94,.12); border:1px solid rgba(244,63,94,.28); color:var(--rose); border-radius:8px; padding:.28rem .75rem; font-size:.76rem; font-weight:600; display:inline-block; margin-bottom:.9rem; }
     .prog-track { height:5px; background:rgba(255,255,255,.07); border-radius:999px; overflow:hidden; margin-top:.4rem; }
@@ -28,7 +27,6 @@
     @keyframes grow { from{width:0}to{width:65%} }
     .mini-row { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); border-radius:11px; padding:.7rem .9rem; display:flex; align-items:center; gap:.7rem; font-size:.8rem; }
     .mini-ic { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.8rem; flex-shrink:0; }
-    /* Navbar */
     .site-nav { position:fixed; top:0; left:0; right:0; z-index:1000; padding:1.4rem 0; transition:all .35s; }
     .site-nav.scrolled { background:rgba(7,7,26,.88) !important; backdrop-filter:blur(20px); padding:.9rem 0; border-bottom:1px solid rgba(255,255,255,.06); }
     .nav-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem; background:linear-gradient(135deg,var(--cyan),var(--violet)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-decoration:none; }
@@ -36,24 +34,19 @@
     .nav-link-item:hover { color:var(--white); }
     .btn-nav { background:transparent; border:1.5px solid rgba(99,102,241,.45); color:var(--text); border-radius:50px; padding:.42rem 1.3rem; font-size:.83rem; font-weight:500; cursor:pointer; transition:all .28s; text-decoration:none; }
     .btn-nav:hover { background:var(--indigo); border-color:var(--indigo); color:white; }
-    /* Stats row */
     .stats-row { background:rgba(255,255,255,.02); border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:3rem 0; }
     .stat-item { text-align:center; }
     .stat-big { font-family:'Syne',sans-serif; font-size:2.8rem; font-weight:800; background:linear-gradient(135deg,var(--cyan),var(--violet)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-    /* Features */
     .feat-card { background:var(--card); border:1px solid var(--border); border-radius:22px; padding:2rem; height:100%; transition:all .35s; }
     .feat-card:hover { transform:translateY(-10px); border-color:rgba(99,102,241,.25); box-shadow:0 35px 70px rgba(0,0,0,.22); }
     .feat-ic { width:55px; height:55px; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; margin-bottom:1.3rem; }
     .ftag { display:inline-block; background:rgba(34,211,238,.07); border:1px solid rgba(34,211,238,.15); color:var(--cyan); border-radius:6px; padding:.18rem .55rem; font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.7rem; }
-    /* Steps */
     .step-card { background:var(--card); border:1px solid var(--border); border-radius:22px; padding:2rem 1.8rem; text-align:center; height:100%; transition:all .35s; }
     .step-card:hover { transform:translateY(-8px); border-color:rgba(99,102,241,.28); }
     .step-num { font-family:'Syne',sans-serif; font-size:3.5rem; font-weight:800; color:rgba(99,102,241,.12); line-height:1; }
     .step-ic { width:60px; height:60px; border-radius:17px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin:0 auto .9rem; }
-    /* CTA */
     .cta-box { background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(34,211,238,.06)); border:1px solid rgba(99,102,241,.22); border-radius:28px; padding:5rem 2rem; text-align:center; position:relative; overflow:hidden; }
     .cta-box::before { content:''; position:absolute; top:-80px; left:50%; transform:translateX(-50%); width:500px; height:260px; background:radial-gradient(circle,rgba(99,102,241,.18),transparent 70%); pointer-events:none; }
-    /* Modal */
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.72); backdrop-filter:blur(8px); z-index:2000; display:none; align-items:center; justify-content:center; padding:1rem; }
     .modal-overlay.show { display:flex; }
     .modal-box { background:#0f0f26; border:1px solid rgba(99,102,241,.22); border-radius:26px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; position:relative; animation:popIn .3s cubic-bezier(.16,1,.3,1); }
@@ -82,17 +75,14 @@
     .inp-wrap .form-inp { padding-right:2.8rem; }
     .eye-btn { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--muted); cursor:pointer; font-size:.82rem; transition:color .2s; }
     .eye-btn:hover { color:var(--white); }
-    /* Section tag */
     .section-tag { display:inline-block; background:rgba(99,102,241,.1); border:1px solid rgba(99,102,241,.24); color:#a5b4fc; border-radius:50px; padding:.28rem .95rem; font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:.9rem; }
     .section-title { font-size:clamp(1.8rem,3.5vw,2.8rem); font-weight:800; letter-spacing:-1px; margin-bottom:.8rem; }
-    /* Testimonials */
     .test-card { background:var(--card); border:1px solid var(--border); border-radius:22px; padding:1.8rem; height:100%; transition:all .32s; }
     .test-card:hover { transform:translateY(-5px); border-color:rgba(255,255,255,.13); }
     .stars { color:var(--amber); font-size:.82rem; margin-bottom:.9rem; }
     .test-text { font-size:.88rem; color:var(--text); line-height:1.72; margin-bottom:1.3rem; font-style:italic; }
     .test-author { display:flex; align-items:center; gap:.75rem; }
     .t-avatar { width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; color:white; font-family:'Syne',sans-serif; flex-shrink:0; }
-    /* Footer */
     footer { border-top:1px solid var(--border); padding:3.5rem 0 1.5rem; }
     .footer-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.25rem; background:linear-gradient(135deg,var(--cyan),var(--violet)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
     footer a { color:var(--muted); text-decoration:none; font-size:.83rem; transition:color .2s; }
@@ -101,7 +91,6 @@
     .marquee-track { display:flex; gap:2.5rem; animation:marquee 22s linear infinite; width:max-content; }
     .marquee-item { font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; color:rgba(255,255,255,.2); white-space:nowrap; }
     @keyframes marquee { from{transform:translateX(0)}to{transform:translateX(-50%)} }
-    /* Loading Animation */
     .btn-loading { position:relative; pointer-events:none; }
     .btn-loading::after { content:''; position:absolute; width:20px; height:20px; top:50%; left:50%; margin:-10px 0 0 -10px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin .8s linear infinite; }
     @keyframes spin { to{transform:rotate(360deg)} }
@@ -115,17 +104,17 @@
 <!-- NAVBAR -->
 <nav class="site-nav" id="siteNav">
     <div class="container d-flex align-items-center justify-content-between">
-        <a href="{% url 'exams:landing' %}" class="nav-logo">ExamSystem</a>
+        <a href="/" class="nav-logo">ExamSystem</a>
         <div class="d-flex align-items-center gap-3">
             <a href="#features" class="nav-link-item d-none d-md-block">Features</a>
             <a href="#how" class="nav-link-item d-none d-md-block">How It Works</a>
             {% if user.is_authenticated %}
                 {% if user.is_instructor %}
-                    <a href="{% url 'exams:instructor_dashboard' %}" class="btn-nav" style="background:var(--indigo);border-color:var(--indigo)">
+                    <a href="/instructor/" class="btn-nav" style="background:var(--indigo);border-color:var(--indigo)">
                         <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                     </a>
                 {% else %}
-                    <a href="{% url 'exams:student_dashboard' %}" class="btn-nav" style="background:var(--indigo);border-color:var(--indigo)">
+                    <a href="/dashboard/" class="btn-nav" style="background:var(--indigo);border-color:var(--indigo)">
                         <i class="fas fa-tachometer-alt me-1"></i>Dashboard
                     </a>
                 {% endif %}
@@ -155,7 +144,6 @@
                     <div class="timer-pill"><i class="fas fa-clock me-1"></i>12:34 remaining</div>
                     <h6 style="color:var(--white);font-weight:600;margin-bottom:.3rem">Database Systems — Final Exam</h6>
                     <p style="font-size:.78rem;color:var(--muted);margin-bottom:.7rem">Question 7 of 20 • MCQ</p>
-                    <p style="font-size:.84rem">Which SQL clause filters grouped results?</p>
                     <div class="prog-track"><div class="prog-fill"></div></div>
                     <div class="mini-row mt-3">
                         <div class="mini-ic" style="background:rgba(34,211,238,.1);color:var(--cyan)"><i class="fas fa-brain"></i></div>
@@ -260,11 +248,11 @@
                 <p style="color:var(--muted);max-width:440px;margin:0 auto 2.3rem;font-size:.95rem;line-height:1.72">You are already logged in. Go to your dashboard to continue.</p>
                 <div class="d-flex gap-3 justify-content-center flex-wrap">
                     {% if user.is_instructor %}
-                        <a href="{% url 'exams:instructor_dashboard' %}" class="btn-primary-h"><i class="fas fa-chalkboard-teacher me-2"></i>Instructor Dashboard</a>
+                        <a href="/instructor/" class="btn-primary-h"><i class="fas fa-chalkboard-teacher me-2"></i>Instructor Dashboard</a>
                     {% else %}
-                        <a href="{% url 'exams:student_dashboard' %}" class="btn-primary-h"><i class="fas fa-graduation-cap me-2"></i>Student Dashboard</a>
+                        <a href="/dashboard/" class="btn-primary-h"><i class="fas fa-graduation-cap me-2"></i>Student Dashboard</a>
                     {% endif %}
-                    <a href="{% url 'accounts:logout' %}" class="btn-ghost-h"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
+                    <a href="/accounts/logout/" class="btn-ghost-h"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
                 </div>
             {% else %}
                 <h2 class="section-title text-white" style="font-size:clamp(1.8rem,4vw,3.2rem)">Ready to run better exams?</h2>
@@ -287,11 +275,11 @@
             <div class="col-md-2"><p style="font-family:'Syne',sans-serif;font-weight:700;font-size:.83rem;color:var(--white);margin-bottom:.7rem">Account</p><div class="d-flex flex-column gap-2">
                 {% if user.is_authenticated %}
                     {% if user.is_instructor %}
-                        <a href="{% url 'exams:instructor_dashboard' %}">Instructor Dashboard</a>
+                        <a href="/instructor/">Instructor Dashboard</a>
                     {% else %}
-                        <a href="{% url 'exams:student_dashboard' %}">Student Dashboard</a>
+                        <a href="/dashboard/">Student Dashboard</a>
                     {% endif %}
-                    <a href="{% url 'accounts:logout' %}">Logout</a>
+                    <a href="/accounts/logout/">Logout</a>
                 {% else %}
                     <a href="#" onclick="openModal('loginModal')">Login</a>
                     <a href="#" onclick="openModal('signupModal')">Sign Up</a>
@@ -332,8 +320,6 @@
             </div>
             <!-- Student Form -->
             <form id="form-student" method="post" action="/accounts/signup/student/">
-
-
                 {% csrf_token %}
                 <div class="row g-2">
                     <div class="col-md-6 form-grp"><label class="form-lbl">Email address</label><input type="email" name="email" class="form-inp" placeholder="you@example.com" required></div>
@@ -345,12 +331,6 @@
             </form>
             <!-- Instructor Form -->
             <form id="form-instructor" method="post" action="/accounts/signup/instructor/" style="display:none">
-</xai:function_call name="edit_file"> 
-
-<xai:function_call name="edit_file">
-<parameter name="path">c:/Users/MAKAVELI/examproject/exam/templates/landing.html
-</xai:function_call name="edit_file">
-<parameter name="path">c:/Users/MAKAVELI/examproject/exam/TODO.md
                 {% csrf_token %}
                 <div class="row g-2">
                     <div class="col-md-6 form-grp"><label class="form-lbl">Email address</label><input type="email" name="email" class="form-inp" placeholder="you@university.edu.ng" required></div>
@@ -375,12 +355,11 @@
             <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:1.5rem">ExamSystem</div>
             <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:.3rem;color:var(--white)">Welcome back</h3>
             <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem">Log in to your account</p>
-                <form method="post" action="/accounts/login/">
-
+            <form method="post" action="/accounts/login/">
                 {% csrf_token %}
                 <div class="form-grp"><label class="form-lbl">Email or Username</label><input type="text" name="username" class="form-inp" placeholder="you@example.com" required></div>
                 <div class="form-grp"><label class="form-lbl">Password</label><div class="inp-wrap"><input type="password" id="lp1" name="password" class="form-inp" placeholder="••••••••" required><button type="button" class="eye-btn" onclick="togglePass('lp1',this)"><i class="fas fa-eye"></i></button></div></div>
-<div class="d-flex justify-content-between align-items-center mb-3" style="font-size:.78rem">
+                <div class="d-flex justify-content-between align-items-center mb-3" style="font-size:.78rem">
                     <label style="display:flex;align-items:center;gap:.4rem;color:var(--muted);cursor:pointer"><input type="checkbox" style="accent-color:var(--indigo)"> Remember me</label>
                     <a href="#" onclick="openForgotPassword()" style="color:#a5b4fc;text-decoration:none">Forgot password?</a>
                 </div>
@@ -395,7 +374,6 @@
 
 {% block extra_js %}
 <script>
-    // Show loading spinner on form submit
     function showLoading(form) {
         const btn = form.querySelector('button[type="submit"]');
         if (btn) {
@@ -404,8 +382,6 @@
         }
         document.getElementById('loadingOverlay').style.display = 'flex';
     }
-    
-    // Add onsubmit to all forms in modals
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('#signupModal form, #loginModal form').forEach(function(form) {
             form.addEventListener('submit', function() {
@@ -413,7 +389,6 @@
             });
         });
     });
-    
     window.addEventListener('scroll', () => {
         document.getElementById('siteNav').classList.toggle('scrolled', window.scrollY > 80);
     });
@@ -440,7 +415,7 @@
         document.getElementById('tab-student').classList.toggle('active', role === 'student');
         document.getElementById('tab-instructor').classList.toggle('active', role === 'instructor');
     }
-function switchToLogin() { closeModal('signupModal'); setTimeout(() => openModal('loginModal'), 180); }
+    function switchToLogin() { closeModal('signupModal'); setTimeout(() => openModal('loginModal'), 180); }
     function switchToSignup() { closeModal('loginModal'); setTimeout(() => openModal('signupModal'), 180); }
     function togglePass(id, btn) {
         const inp = document.getElementById(id);
@@ -452,14 +427,6 @@ function switchToLogin() { closeModal('signupModal'); setTimeout(() => openModal
         closeModal('loginModal');
         setTimeout(() => window.location.href = '/accounts/password-reset/request/', 200);
     }
-    // Open login if there were auth errors
-    {% if messages %}
-    {% for message in messages %}
-    {% if 'Invalid' in message.message or 'pending' in message.message %}
-    document.addEventListener('DOMContentLoaded', () => openModal('loginModal'));
-    {% endif %}
-    {% endfor %}
-    {% endif %}
 </script>
 {% endblock %}
 
