@@ -22,7 +22,7 @@ urlpatterns = [
 
 
 from django.urls import path
-from your_app.views import create_admin
+from accounts.views import create_admin
 
 urlpatterns = [
     path('create-admin/', create_admin),
