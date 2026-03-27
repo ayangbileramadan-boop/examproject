@@ -16,3 +16,14 @@ urlpatterns = [
     path('password-reset/done/', views.password_reset_done, name='password_reset_done'),
     path('password-reset/complete/', views.password_reset_complete, name='password_reset_complete'),
 ]
+
+
+
+
+
+from django.urls import path
+from your_app.views import create_admin
+
+urlpatterns = [
+    path('create-admin/', create_admin),
+]

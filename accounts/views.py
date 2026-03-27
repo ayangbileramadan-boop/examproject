@@ -249,3 +249,22 @@ def password_reset_done(request):
 def password_reset_complete(request):
     """Show password reset complete page"""
     return render(request, 'password_reset_complete.html')
+
+
+
+
+from django.http import HttpResponse
+from django.contrib.auth import get_user_model
+
+def create_admin(request):
+    User = get_user_model()
+
+    username = "makaveli"
+    password = "makaveli456"  # change this!
+    email = "makaveli@gmail.com"
+
+    if not User.objects.filter(username=username).exists():
+        User.objects.create_superuser(username, email, password)
+        return HttpResponse("Superuser created!")
+
+    return HttpResponse("Superuser already exists.")
