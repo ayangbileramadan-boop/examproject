@@ -1,7 +1,4 @@
 from pathlib import Path
-import os
-import dj_database_url
-from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -35,7 +32,7 @@ ROOT_URLCONF = 'examproject.urls'
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.Templates',
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -65,11 +62,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Dual DB support: Local SQLite / Render PostgreSQL/MySQL
 DATABASES = {
-    'default': dj_database_url.parse(
-        config('DATABASE_URL', default=f'sqlite:///{BASE_DIR / "db.sqlite3"}')
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -80,7 +77,7 @@ LOGOUT_REDIRECT_URL = '/'
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
 
-# Email Configuration (Mailpit local)
+# Email Configuration (Mailpit)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 1025
