@@ -88,6 +88,8 @@ class Question(models.Model):
     marks = models.PositiveIntegerField(default=1)
     order = models.PositiveIntegerField(default=0)
 
+    upload_file = models.FileField(upload_to='question_files/', blank=True, null=True, verbose_name='Upload JSON/CSV file')
+
     # For MCQ
     option_a = models.CharField(max_length=300, blank=True)
     option_b = models.CharField(max_length=300, blank=True)
@@ -174,3 +176,4 @@ class Answer(models.Model):
 
     def __str__(self):
         return f"{self.submission.student.username} — Q{self.question.order}"
+

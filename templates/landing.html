@@ -3,8 +3,47 @@
 
 {% block extra_css %}
 <style>
-    body { overflow-x:hidden; }
-    .hero { min-height:100vh; background:linear-gradient(135deg,#1e1b4b 0%,#0f172a 50%,#0c0c24 100%); display:flex; align-items:center; position:relative; overflow:hidden; padding:100px 0 60px; }
+    /* Use base CSS vars for theming */
+    .hero { min-height:100vh; background:linear-gradient(135deg,#1e1b4b 0%,#0f172a 50%,#0c0c24 100%); display:flex; align-items:center; position:relative; overflow:hidden; padding:100px 0 60px; transition: background 0.3s; }
+    [data-theme="light"] .hero { background:linear-gradient(135deg,#eef2ff 0%,#e0e7ff 40%,#c7d2fe 100%); }
+    
+    [data-theme="light"] .site-nav { background:rgba(255,255,255,.95) !important; border-bottom: 1px solid #e5e7eb; }
+    [data-theme="light"] .nav-logo { -webkit-text-fill-color: #4f46e5; }
+    [data-theme="light"] .nav-link-item { color: #4b5563; }
+    [data-theme="light"] .nav-link-item:hover { color: #111827; }
+    [data-theme="light"] .theme-toggle { background: #f3f4f6; border-color: #e5e7eb; color: #6b7280; }
+    [data-theme="light"] .theme-toggle:hover { color: #f59e0b; border-color: #f59e0b; }
+    [data-theme="light"] .btn-nav { border-color: #d1d5db; color: #4b5563; background: transparent; }
+    [data-theme="light"] .btn-nav:hover { background: #4f46e5; border-color: #4f46e5; color: white; }
+    [data-theme="light"] .hero-title { color: #1e293b; }
+    [data-theme="light"] .hero-sub { color: #6b7280; }
+    [data-theme="light"] .hero-badge { background: rgba(79,70,229,.1); border-color: rgba(79,70,229,.3); color: #4f46e5; }
+    [data-theme="light"] .pulse { background: #4f46e5; }
+    
+    [data-theme="light"] .glass-card { background: white; border-color: #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0,0,0,.1); }
+    [data-theme="light"] .stat-big { -webkit-text-fill-color: #4f46e5; }
+    [data-theme="light"] .feat-card { background: white; border-color: #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0,0,0,.1); }
+    [data-theme="light"] .feat-card:hover { border-color: #6366f1; }
+    [data-theme="light"] .feat-card h4 { color: #111827; }
+    [data-theme="light"] .feat-card p { color: #6b7280; }
+    [data-theme="light"] .step-card { background: white; border-color: #e5e7eb; }
+    [data-theme="light"] .step-card h5 { color: #111827; }
+    [data-theme="light"] .step-card p { color: #6b7280; }
+    [data-theme="light"] .step-num { color: rgba(79,70,229,.15); }
+    [data-theme="light"] .test-card { background: white; border-color: #e5e7eb; }
+    [data-theme="light"] .test-text { color: #4b5563; }
+    [data-theme="light"] .test-author strong { color: #111827; }
+    [data-theme="light"] .test-author div:last-child { color: #6b7280; }
+    [data-theme="light"] .section-title { color: #111827; }
+    [data-theme="light"] .section-tag { background: rgba(79,70,229,.1); border-color: rgba(79,70,229,.2); color: #4f46e5; }
+    [data-theme="light"] .cta-box { background: linear-gradient(135deg, rgba(79,70,229,.05), rgba(34,211,238,.03)); border-color: rgba(79,70,229,.15); }
+    [data-theme="light"] .cta-box h2 { color: #111827; }
+    [data-theme="light"] .cta-box p { color: #6b7280; }
+    [data-theme="light"] footer { border-top-color: #e5e7eb; }
+    [data-theme="light"] footer p { color: #6b7280; }
+    [data-theme="light"] footer a { color: #6b7280; }
+    [data-theme="light"] footer .footer-logo { -webkit-text-fill-color: #4f46e5; }
+    
     .orb { position:absolute; border-radius:50%; filter:blur(90px); pointer-events:none; }
     .orb-1 { width:600px; height:600px; background:radial-gradient(circle,rgba(99,102,241,.25),transparent 70%); top:-150px; left:-150px; }
     .orb-2 { width:400px; height:400px; background:radial-gradient(circle,rgba(139,92,246,.2),transparent 70%); bottom:-100px; right:-80px; }
@@ -106,6 +145,7 @@
     <div class="container d-flex align-items-center justify-content-between">
         <a href="/" class="nav-logo">ExamSystem</a>
         <div class="d-flex align-items-center gap-3">
+            <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" style="background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--muted);width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s"><i class="fas fa-moon moon"></i><i class="fas fa-sun sun"></i></button>
             <a href="#features" class="nav-link-item d-none d-md-block">Features</a>
             <a href="#how" class="nav-link-item d-none d-md-block">How It Works</a>
             {% if user.is_authenticated %}

@@ -10,7 +10,7 @@
     .wb-text h1 { font-size:1.7rem; font-weight:800; letter-spacing:-1px; margin-bottom:.25rem; }
     .approval-pill { display:inline-flex; align-items:center; gap:.35rem; background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.22); color:var(--green); padding:.22rem .75rem; border-radius:50px; font-size:.72rem; font-weight:600; margin-top:.55rem; }
     .meta-num { font-family:'Syne',sans-serif; font-size:2.5rem; font-weight:800; background:linear-gradient(135deg,var(--orange),var(--rose)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; }
-    .main-grid { display:grid; grid-template-columns:1fr 300px; gap:1.5rem; margin-bottom:1.8rem; }
+    .main-grid { display:grid; grid-template-columns:1fr 380px; gap:1.5rem; margin-bottom:1.8rem; }
     .exam-row { padding:1rem 1.4rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.9rem; transition:background .2s; cursor:pointer; }
     .exam-row:last-child { border-bottom:none; }
     .exam-row:hover { background:rgba(255,255,255,.025); }
@@ -31,7 +31,7 @@
     .btn-view:hover { background:rgba(251,146,60,.24); }
     .btn-del { background:rgba(244,63,94,.08); color:var(--rose); }
     .btn-del:hover { background:rgba(244,63,94,.2); }
-    .bottom-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem; margin-bottom:1.8rem; }
+    .bottom-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; margin-bottom:1.8rem; }
     .bar-track { height:5px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden; margin-top:.35rem; }
     .bar-fill { height:100%; border-radius:999px; transition:width 1.1s cubic-bezier(.16,1,.3,1); }
     .stu-item { padding:.85rem 1.4rem; display:flex; align-items:center; gap:.85rem; border-bottom:1px solid var(--border); transition:background .2s; }
@@ -66,7 +66,21 @@
     .btn-create:hover { transform:translateY(-2px); box-shadow:0 10px 26px rgba(251,146,60,.35); }
     .btn-cancel-m { width:100%; padding:.65rem; background:transparent; border:1px solid rgba(255,255,255,.09); border-radius:11px; color:var(--muted); font-size:.84rem; cursor:pointer; margin-top:.5rem; transition:all .2s; }
     .btn-cancel-m:hover { color:var(--white); border-color:rgba(255,255,255,.2); }
-
+    /* Analytics */
+    .chart-card { background:var(--card); border:1px solid var(--border); border-radius:19px; padding:1.3rem; }
+    .chart-title { font-size:.88rem; font-weight:700; color:var(--white); margin-bottom:1rem; display:flex; align-items:center; gap:.5rem; }
+    .dist-item { display:flex; align-items:center; gap:.9rem; padding:.5rem 0; border-bottom:1px solid rgba(255,255,255,.04); }
+    .dist-item:last-child { border-bottom:none; }
+    .dist-color { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+    .dist-label { flex:1; font-size:.82rem; color:var(--text); }
+    .dist-value { font-family:'Syne',sans-serif; font-weight:700; font-size:.9rem; color:var(--white); }
+    .perf-row { display:flex; align-items:center; gap:.7rem; padding:.45rem 0; }
+    .perf-name { font-size:.8rem; color:var(--text); flex:1; }
+    .perf-bar-wrap { flex:2; height:6px; background:rgba(255,255,255,.06); border-radius:3px; overflow:hidden; }
+    .perf-bar { height:100%; border-radius:3px; transition:width .8s ease; }
+    .perf-val { font-size:.78rem; font-weight:600; color:var(--muted); width:40px; text-align:right; }
+    @media(max-width:1200px){ .main-grid{grid-template-columns:1fr} .bottom-grid{grid-template-columns:1fr 1fr} }
+    @media(max-width:768px){ .bottom-grid{grid-template-columns:1fr} }
 </style>
 {% endblock %}
 
@@ -148,10 +162,13 @@
         <div class="topbar">
             <div><h2 style="font-size:1.15rem;font-weight:800;color:var(--white)">Instructor Dashboard</h2><p id="liveClock" style="font-size:.76rem;color:var(--muted)"></p></div>
             <div class="d-flex gap-2 align-items-center">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme"><i class="fas fa-moon moon"></i><i class="fas fa-sun sun"></i></button>
                 <a href="#" class="icon-btn"><i class="fas fa-bell"></i></a>
                 <button onclick="document.getElementById('createModal').classList.add('show')" style="background:linear-gradient(135deg,var(--orange),var(--rose));color:white;border:none;border-radius:10px;padding:.52rem 1rem;font-size:.81rem;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;transition:all .28s;display:flex;align-items:center;gap:.45rem"><i class="fas fa-plus"></i> Create Exam</button>
+                <a href="{% url 'exams:upload_questions' %}" class="btn" style="background:linear-gradient(135deg,var(--cyan),var(--indigo));color:white;border:none;border-radius:10px;padding:.52rem 1rem;font-size:.81rem;font-family:'Syne',sans-serif;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:.45rem"><i class="fas fa-upload"></i> Upload Questions</a>
             </div>
         </div>
+
 
         <div class="page-content">
             <!-- Welcome -->
@@ -210,7 +227,7 @@
                             <h4><i class="fas fa-user-clock me-2" style="color:var(--cyan)"></i>Active Students</h4>
                             {% if active_students_count %}<span style="background:rgba(34,211,238,.12);color:var(--cyan);border:1px solid rgba(34,211,238,.2);padding:.18rem .6rem;border-radius:50px;font-size:.7rem;font-weight:700">{{ active_students_count }} taking exam{{ active_students_count|pluralize }}</span>{% endif %}
                         </div>
-                        {% for sub in active_students %}
+                        {% for sub in active_students_list %}
                         <div class="stu-item">
                             <div class="stu-av" style="background:linear-gradient(135deg,var(--cyan),var(--indigo))">{{ sub.student.avatar_initials|default:sub.student.username|slice:":2"|upper }}</div>
                             <div style="flex:1">
@@ -224,7 +241,55 @@
                         {% endfor %}
                     </div>
 
-                    <!-- Top Students -->
+                    <!-- Score Distribution -->
+                    <div class="chart-card">
+                        <h4 class="chart-title"><i class="fas fa-chart-pie" style="color:var(--indigo)"></i>Score Distribution</h4>
+                        <div class="dist-item">
+                            <div class="dist-color" style="background:var(--green)"></div>
+                            <span class="dist-label">Excellent (70%+)</span>
+                            <span class="dist-value" style="color:var(--green)">{{ score_distribution.excellent }}</span>
+                        </div>
+                        <div class="dist-item">
+                            <div class="dist-color" style="background:var(--amber)"></div>
+                            <span class="dist-label">Good (50-69%)</span>
+                            <span class="dist-value" style="color:var(--amber)">{{ score_distribution.good }}</span>
+                        </div>
+                        <div class="dist-item">
+                            <div class="dist-color" style="background:var(--rose)"></div>
+                            <span class="dist-label">Needs Improvement (&lt;50%)</span>
+                            <span class="dist-value" style="color:var(--rose)">{{ score_distribution.poor }}</span>
+                        </div>
+                        <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+                            <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted)">
+                                <span>Total Submissions</span>
+                                <span style="font-weight:700;color:var(--white)">{{ total_submissions }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance by Exam -->
+            <div class="glass-card" style="margin-bottom:1.8rem">
+                <div class="section-header">
+                    <h4><i class="fas fa-chart-bar me-2" style="color:var(--violet)"></i>Exam Performance Overview</h4>
+                </div>
+                <div style="padding:1.3rem">
+                    {% for perf in exam_performance %}
+                    <div class="perf-row">
+                        <span class="perf-name">{{ perf.title }}{% if perf.title|length >= 20 %}...{% endif %}</span>
+                        <div class="perf-bar-wrap">
+                            <div class="perf-bar" style="width:{{ perf.pass_rate }}%;background:{% if perf.pass_rate >= 70 %}var(--green){% elif perf.pass_rate >= 50 %}var(--amber){% else %}var(--rose){% endif %}"></div>
+                        </div>
+                        <span class="perf-val">{{ perf.pass_rate }}%</span>
+                    </div>
+                    {% empty %}
+                    <p style="color:var(--muted);text-align:center;font-size:.85rem;padding:1rem 0">No exam data available yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Bottom Grid -->
                     <div class="glass-card">
                         <div class="section-header"><h4><i class="fas fa-crown me-2" style="color:var(--amber)"></i>Top Students</h4></div>
                         {% for sub in top_students %}
@@ -255,7 +320,48 @@
 
             <!-- Bottom Grid -->
             <div class="bottom-grid">
-                <!-- Pending Essays -->
+                <div class="glass-card">
+                    <div class="section-header"><h4><i class="fas fa-history me-2" style="color:var(--cyan)"></i>Recent Submissions</h4></div>
+                    {% for sub in recent_submissions %}
+                    <div class="act-item">
+                        <div class="act-dot" style="background:rgba(52,211,153,.1);color:var(--green)"><i class="fas fa-check" style="font-size:.65rem"></i></div>
+                        <div><div style="font-size:.82rem;color:var(--text)"><strong>{{ sub.student.username }}</strong> submitted {{ sub.exam.title|truncatechars:18 }}</div><div style="font-size:.7rem;color:var(--muted)">{{ sub.submitted_at|timesince }} ago · {{ sub.score_percentage }}%</div></div>
+                    </div>
+                    {% empty %}
+                    <div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.82rem">No submissions yet.</div>
+                    {% endfor %}
+                </div>
+
+                    <!-- Top Students -->
+                    <div class="glass-card">
+                        <div class="section-header"><h4><i class="fas fa-crown me-2" style="color:var(--amber)"></i>Top Students</h4></div>
+                        {% for sub in top_students %}
+                        <div class="stu-item">
+                            <div class="stu-av" style="background:linear-gradient(135deg,{% cycle 'var(--indigo),var(--violet)' 'var(--orange),var(--rose)' 'var(--cyan),var(--indigo)' 'var(--green),var(--cyan)' 'var(--violet),var(--rose)' %})">{{ sub.student.avatar_initials|default:sub.student.username|slice:":2"|upper }}</div>
+                            <div style="flex:1"><div style="font-weight:600;font-size:.85rem;color:var(--white)">{{ sub.student.username }}</div><div style="font-size:.72rem;color:var(--muted)">{{ sub.exam.title|truncatechars:20 }}</div></div>
+                            <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:.9rem;color:{% if sub.score_percentage >= 70 %}var(--green){% else %}var(--amber){% endif %}">{{ sub.score_percentage }}%</div>
+                        </div>
+                        {% empty %}
+                        <div style="padding:2rem;text-align:center;color:var(--muted);font-size:.84rem">No submissions yet.</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="glass-card">
+                        <div class="section-header"><h4><i class="fas fa-history me-2" style="color:var(--cyan)"></i>Recent Submissions</h4></div>
+                        {% for sub in recent_submissions %}
+                        <div class="act-item">
+                            <div class="act-dot" style="background:rgba(52,211,153,.1);color:var(--green)"><i class="fas fa-check" style="font-size:.65rem"></i></div>
+                            <div><div style="font-size:.82rem;color:var(--text)"><strong>{{ sub.student.username }}</strong> submitted {{ sub.exam.title|truncatechars:18 }}</div><div style="font-size:.7rem;color:var(--muted)">{{ sub.submitted_at|timesince }} ago · {{ sub.score_percentage }}%</div></div>
+                        </div>
+                        {% empty %}
+                        <div style="padding:1.5rem;text-align:center;color:var(--muted);font-size:.82rem">No submissions yet.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Essays -->
                 {% if pending_essays %}
                 <div class="glass-card" style="grid-column:1/-1">
                     <div class="section-header"><h4><i class="fas fa-pen-to-square me-2" style="color:var(--rose)"></i>Pending Grading</h4>{% if pending_essays_count %}<span style="background:rgba(244,63,94,.1);color:var(--rose);border:1px solid rgba(244,63,94,.2);padding:.18rem .6rem;border-radius:50px;font-size:.7rem;font-weight:700">{{ pending_essays_count }} essay{{ pending_essays_count|pluralize }}</span>{% endif %}</div>

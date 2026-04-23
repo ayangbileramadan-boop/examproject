@@ -10,9 +10,8 @@ from django.conf import settings
 import json, random
 
 from .models import Exam, Question, Submission, Answer
-from .forms import ExamForm, QuestionForm, JoinExamForm, EssayGradeForm
+from .forms import ExamForm, QuestionForm, JoinExamForm, EssayGradeForm, UploadQuestionsForm
 from accounts.models import User
-
 
 # ─── PUBLIC ────────────────────────────────────────────────────────────────────
 
@@ -20,11 +19,9 @@ def landing(request):
     # Always show the landing page - let user choose to go to dashboard if logged in
     return render(request, 'landing.html')
 
-
 def landing_page(request):
     # Always show the landing page - let user choose to go to dashboard if logged in
     return render(request, 'landing.html')
-
 
 # ─── STUDENT ───────────────────────────────────────────────────────────────────
 
@@ -38,7 +35,6 @@ def _student_required(view_func):
             return redirect('landing')
         return view_func(request, *args, **kwargs)
     return wrapper
-
 
 @_student_required
 def student_dashboard(request):
@@ -83,7 +79,6 @@ def student_dashboard(request):
     }
     return render(request, 'student_dashboard.html', context)
 
-
 @_student_required
 def join_exam(request):
     if request.method == 'POST':
@@ -101,7 +96,6 @@ def join_exam(request):
         else:
             messages.error(request, "Invalid exam code. Please check and try again.")
     return redirect('exams:student_dashboard')
-
 
 @_student_required
 def take_exam(request, pk):
@@ -121,14 +115,13 @@ def take_exam(request, pk):
         return redirect('exams:exam_result', pk=existing.pk)
 
     # Check exam is upcoming - REDIRECT if not started yet (don't show questions!)
-    exam_is_upcoming = exam.status == 'upcoming'
     if exam.status == 'closed':
-        messages.warning(request, "This exam is closed.")
+        messages.warning(request, "This exam is not available.")
         return redirect('exams:student_dashboard')
     
     # If exam has a start time and hasn't started yet, redirect to dashboard with info
     if exam.start_time and exam.start_time > now:
-        messages.info(request, f"This exam hasn't started yet. It will begin on {exam.start_time.strftime('%B %d, %Y at %I:%M %p')}.")
+        messages.info(request, f"This exam hasn't started yet. It will begin on {exam.start_time.strftime('%B %d, %Y at %I:%M %p')}.") 
         return redirect('exams:student_dashboard')
 
     # Create or resume submission
@@ -177,10 +170,9 @@ def take_exam(request, pk):
         'existing_answers': existing_answers,
         'auto_submit_ts': auto_submit_ts,
         'exam_deadline_ts': exam_deadline_ts,
-        'exam_is_upcoming': exam_is_upcoming,
+        'exam_is_upcoming': exam.status == 'upcoming',
     }
     return render(request, 'take_exam.html', context)
-
 
 @_student_required
 def exam_result(request, pk):
@@ -203,14 +195,12 @@ def exam_result(request, pk):
     }
     return render(request, 'exam_result.html', context)
 
-
 @_student_required
 def my_results(request):
     submissions = Submission.objects.filter(
         student=request.user, is_submitted=True
     ).select_related('exam').order_by('-submitted_at')
     return render(request, 'my_results.html', {'submissions': submissions})
-
 
 # ─── INSTRUCTOR ────────────────────────────────────────────────────────────────
 
@@ -227,7 +217,6 @@ def _instructor_required(view_func):
         return view_func(request, *args, **kwargs)
     return wrapper
 
-
 @_instructor_required
 def instructor_dashboard(request):
     instructor = request.user
@@ -240,7 +229,7 @@ def instructor_dashboard(request):
     ).values('student').distinct().count()
     
     # Active students - currently taking an exam (in-progress submissions)
-    active_students = Submission.objects.filter(
+    active_students_list = Submission.objects.filter(
         exam__instructor=instructor, is_submitted=False
     ).select_related('student', 'exam')
 
@@ -266,22 +255,84 @@ def instructor_dashboard(request):
         exam__instructor=instructor, is_submitted=True
     ).select_related('student', 'exam').order_by('-score_percentage')[:5]
 
+    # Analytics data for charts
+    # Score distribution
+    score_distribution = {
+        'excellent': Submission.objects.filter(exam__instructor=instructor, is_submitted=True, score_percentage__gte=70).count(),
+        'good': Submission.objects.filter(exam__instructor=instructor, is_submitted=True, score_percentage__gte=50, score_percentage__lt=70).count(),
+        'poor': Submission.objects.filter(exam__instructor=instructor, is_submitted=True, score_percentage__lt=50).count(),
+    }
+    
+    # Per-exam performance
+    exam_performance = []
+    for exam in exams:
+        exam_performance.append({
+            'title': exam.title[:20],
+            'avg_score': exam.average_score or 0,
+            'submissions': exam.total_submissions,
+            'pass_rate': round(exam.submissions.filter(is_submitted=True, score_percentage__gte=exam.pass_mark).count() / exam.total_submissions * 100, 1) if exam.total_submissions else 0
+        })
+
+    # Total submissions count
+    total_submissions = Submission.objects.filter(exam__instructor=instructor, is_submitted=True).count()
+
     context = {
         'instructor': instructor,
         'exams': exams,
         'total_exams': exams.count(),
         'total_students': total_students,
-        'active_students': active_students,
-        'active_students_count': active_students.count(),
+        'total_submissions': total_submissions,
+        'active_students_list': active_students_list,
+        'active_students_count': active_students_list.count(),
         'avg_score': round(avg_score, 1),
         'pending_essays': pending_essays,
         'pending_essays_count': pending_essays.count(),
         'recent_submissions': recent_submissions,
         'top_students': top_students,
         'exam_form': ExamForm(),
+        'score_distribution': score_distribution,
+        'exam_performance': exam_performance,
     }
     return render(request, 'instructor_dashboard.html', context)
 
+@_instructor_required
+def upload_questions(request):
+    """Upload JSON file to bulk add questions to exam"""
+    form = UploadQuestionsForm(instructor=request.user)
+    if request.method == 'POST':
+        form = UploadQuestionsForm(request.POST, request.FILES, instructor=request.user)
+        if form.is_valid():
+            exam = form.cleaned_data['exam']
+            upload_file = form.cleaned_data['upload_file']
+            
+            try:
+                # Read JSON file
+                data = json.load(upload_file)
+                questions_added = 0
+                
+                for q_data in data:
+                    question = Question(exam=exam)
+                    question.text = q_data.get('text', '')
+                    question.question_type = q_data.get('type', 'mcq')
+                    question.marks = q_data.get('marks', 1)
+                    question.option_a = q_data.get('option_a', '')
+                    question.option_b = q_data.get('option_b', '')
+                    question.option_c = q_data.get('option_c', '')
+                    question.option_d = q_data.get('option_d', '')
+                    question.correct_answer = q_data.get('correct_answer', '')
+                    question.order = exam.questions.count() + 1
+                    question.save()
+                    questions_added += 1
+                
+                messages.success(request, f"Successfully added {questions_added} questions to '{exam.title}'!")
+                return redirect('exams:manage_exam', pk=exam.pk)
+            except json.JSONDecodeError:
+                messages.error(request, "Invalid JSON file. Please check the format.")
+            except Exception as e:
+                messages.error(request, f"Error processing file: {str(e)}")
+    
+    context = {'form': form}
+    return render(request, 'upload_questions.html', context)
 
 @_instructor_required
 def create_exam(request):
@@ -298,7 +349,6 @@ def create_exam(request):
                 for e in errors:
                     messages.error(request, f"{field}: {e}")
     return redirect('exams:instructor_dashboard')
-
 
 @_instructor_required
 def manage_exam(request, pk):
@@ -345,16 +395,14 @@ def manage_exam(request, pk):
     }
     return render(request, 'manage_exam.html', context)
 
-
 @_instructor_required
 def delete_exam(request, pk):
     exam = get_object_or_404(Exam, pk=pk, instructor=request.user)
     if request.method == 'POST':
         title = exam.title
         exam.delete()
-        messages.success(request, f"Exam '{title}' deleted.")
+        messages.success(request, "Exam '{title}' deleted.")
     return redirect('exams:instructor_dashboard')
-
 
 @_instructor_required
 def grade_essay(request, answer_pk):
@@ -393,7 +441,6 @@ def grade_essay(request, answer_pk):
     }
     return render(request, 'grade_essay.html', context)
 
-
 @_instructor_required
 def exam_analytics(request, pk):
     exam = get_object_or_404(Exam, pk=pk, instructor=request.user)
@@ -426,7 +473,6 @@ def exam_analytics(request, pk):
     }
     return render(request, 'exam_analytics.html', context)
 
-
 # ─── ADMIN ─────────────────────────────────────────────────────────────────────
 
 def _admin_required(view_func):
@@ -439,7 +485,6 @@ def _admin_required(view_func):
             return redirect('landing')
         return view_func(request, *args, **kwargs)
     return wrapper
-
 
 @_admin_required
 def admin_dashboard(request):
@@ -465,6 +510,11 @@ def admin_dashboard(request):
     # Pending instructor approvals
     pending_instructors = instructors.filter(is_approved=False)
     
+    # System health
+    avg_score = Submission.objects.filter(is_submitted=True).aggregate(avg=Avg('score_percentage'))['avg'] or 0
+    published_exams = exams.filter(is_published=True).count()
+    draft_exams = exams.filter(is_published=False).count()
+    
     context = {
         'students': students,
         'instructors': instructors,
@@ -477,9 +527,11 @@ def admin_dashboard(request):
         'recent_submissions': recent_submissions,
         'pending_instructors': pending_instructors,
         'pending_count': pending_instructors.count(),
+        'avg_score': round(avg_score, 1),
+        'published_exams': published_exams,
+        'draft_exams': draft_exams,
     }
     return render(request, 'admin_dashboard.html', context)
-
 
 @_admin_required
 def manage_user(request, user_id):

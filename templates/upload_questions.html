@@ -1,0 +1,61 @@
+
+{% extends 'base.html' %}
+
+{% block title %}Upload Questions{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-upload me-2"></i>
+                        Upload Questions File
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Upload JSON file with questions data to bulk add questions to your exam.
+                    </p>
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Select Exam</label>
+                            {{ form.exam }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.upload_file.id_for_label }}" class="form-label fw-bold">
+                                {{ form.upload_file.label }} <span class="text-muted">({{ form.upload_file.help_text }})</span>
+                            </label>
+                            {{ form.upload_file }}
+                            {% if form.upload_file.errors %}
+                                <div class="text-danger mt-1">{{ form.upload_file.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-upload me-2"></i>Upload & Process
+                            </button>
+                            <a href="{% url 'exams:instructor_dashboard' %}" class="btn btn-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -6,9 +6,10 @@ from django.contrib.auth.forms import PasswordChangeForm, PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMultiAlternatives
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.template import Context
 from .forms import StudentSignupForm, InstructorSignupForm, LoginForm
 from .models import User
 
@@ -162,42 +163,81 @@ def password_reset_request(request):
                 f"/accounts/password-reset/confirm/{uid}/{token}/"
             )
             
-            # Send email
-            subject = '🔐 Reset Your ExamSystem Password'
-            message = f"""
-Hello {user.username},
-
-We received a request to reset your password. Click the link below to create a new password:
-
-{reset_url}
-
-If you didn't request this, please ignore this email. Your password will remain unchanged.
-
-This link will expire in 48 hours.
-
-Best regards,
-ExamSystem Team
-"""
-            
             # Print reset link to console for debugging
             print(f"\n{'='*60}")
             print(f"PASSWORD RESET LINK FOR {email}:")
             print(f"{reset_url}")
             print(f"{'='*60}\n")
             
+            # Send HTML email
             try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
+                subject = 'Reset Your ExamSystem Password'
+                
+                # HTML Email Template
+                html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:#f4f4f9">
+    <div style="max-width:520px;margin:40px auto;background:#0f0f26;border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+        <div style="background:linear-gradient(135deg,#6366f1,#8b5cf6);padding:40px;text-align:center">
+            <h1 style="color:white;font-size:28px;margin:0;font-weight:700">ExamSystem</h1>
+        </div>
+        <div style="padding:40px">
+            <h2 style="color:#e8e8ff;font-size:22px;margin:0 0 20px">Password Reset Request</h2>
+            <p style="color:#8a8aaa;font-size:15px;line-height:1.7">Hello {user.username},</p>
+            <p style="color:#8a8aaa;font-size:15px;line-height:1.7">We received a request to reset your password. Click the button below to create a new password:</p>
+            <div style="text-align:center;margin:30px 0">
+                <a href="{reset_url}" style="display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;padding:16px 40px;border-radius:12px;text-decoration:none;font-weight:600;font-size:16px">Reset Password</a>
+            </div>
+            <p style="color:#8a8aaa;font-size:13px;line-height:1.6">Or copy and paste this link into your browser:</p>
+            <p style="color:#6366f1;font-size:12px;word-break:break-all">{reset_url}</p>
+            <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:15px;margin:20px 0">
+                <p style="color:#fbbf24;font-size:13px;margin:0"><strong>⚠️ Security Notice:</strong> This link expires in 48 hours. If you didn't request this, please ignore this email.</p>
+            </div>
+        </div>
+        <div style="background:#0a0a1a;padding:25px;text-align:center;border-top:1px solid rgba(255,255,255,0.05)">
+            <p style="color:#5a5a8a;font-size:12px;margin:0">© 2026 ExamSystem. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+"""
+                
+                # Plain text version
+                text_content = f"""
+Hello {user.username},
+
+We received a request to reset your password.
+
+Click the link below to create a new password:
+{reset_url}
+
+If you didn't request this, please ignore this email. This link will expire in 48 hours.
+
+Best regards,
+ExamSystem Team
+"""
+                
+                email = EmailMultiAlternatives(
+                    subject=subject,
+                    body=text_content,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[user.email]
                 )
+                email.attach_alternative(html_content, 'text/html')
+                email.send(fail_silently=False)
+                
                 print(f"Email sent successfully to {user.email}")
             except Exception as e:
                 print(f"Email error: {e}")
+                # Fallback to console
+                messages.warning(request, f"Email could not be sent. Reset link: {reset_url}")
             
-            messages.success(request, "Password reset link sent! Check your email.")
+            messages.success(request, "Password reset link sent! Check your email (or console for development).")
                 
         except User.DoesNotExist:
             # Don't reveal if email exists

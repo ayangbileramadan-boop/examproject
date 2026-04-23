@@ -1,0 +1,120 @@
+/* Mobile-First CSS Enhancements - ExamSystem */
+
+/* Mobile-first base improvements */
+* { 
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+@media (pointer: fine) { * { user-select: auto; } }
+
+html { 
+    font-size: 16px;
+    line-height: 1.5;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 480px) { html { font-size: 15px; } }
+@media (max-width: 360px) { html { font-size: 14px; } }
+
+/* Touch targets: min 44px */
+.icon-btn, button, [class*="btn"], .nav-item-link, .qa-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: .7rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+@media (hover: none), (pointer: coarse) {
+    .icon-btn:active, button:active, .nav-item-link:active { 
+        transform: scale(0.96) !important; 
+        transition: transform .1s !important;
+    }
+}
+
+/* Safe area insets for notch/rounded corners */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(env(safe-area-inset-left), 0.75rem);
+        padding-right: max(env(safe-area-inset-right), 0.75rem);
+        padding-top: max(env(safe-area-inset-top), 0);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* Enhanced media queries - progressive stacking */
+@media (max-width: 1200px) {
+    .stat-grid, .main-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.75rem; }
+}
+
+@media (max-width: 992px) {
+    .stat-grid { grid-template-columns: 1fr 1fr !important; }
+    .quick-grid { grid-template-columns: 1fr !important; }
+    .page-content { padding: 1rem !important; }
+}
+
+@media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%) !important; }
+    .sidebar.open { transform: translateX(0) !important; }
+    .main { margin-left: 0 !important; }
+    .mobile-bar { 
+        padding: 1rem !important; 
+        min-height: 56px;
+        backdrop-filter: blur(20px);
+    }
+    .layout { flex-direction: column; }
+    .topbar { display: none !important; }
+    .welcome-banner { 
+        flex-direction: column !important; 
+        text-align: center !important; 
+        padding: 1.25rem !important;
+        gap: 1rem !important;
+    }
+    .section-header { 
+        flex-direction: column !important; 
+        align-items: flex-start !important; 
+        gap: 0.5rem !important;
+        padding: 1rem !important;
+    }
+    .user-row, .exam-row, .stu-item, .result-item, .act-item { 
+        flex-direction: column !important; 
+        align-items: flex-start !important; 
+        gap: 0.75rem !important;
+        padding: 1rem !important;
+    }
+    .quick-actions, .tab-nav { flex-direction: column !important; gap: 0.5rem !important; }
+}
+
+@media (max-width: 576px) {
+    .stat-card { padding: 1rem !important; }
+    h1, h2 { font-size: 1.4rem !important; }
+    .page-content { padding: 0.75rem !important; }
+    .modal-box { margin: 1rem; padding: 1.5rem !important; }
+    .form-row { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 360px) {
+    .topbar, .mobile-bar { padding-left: 0.75rem !important; padding-right: 0.75rem !important; }
+    .nav-item-link { padding: 1rem 0.75rem !important; }
+}
+
+/* Focus visible for accessibility */
+@media (pointer: fine) {
+    *:focus-visible { outline: 2px solid var(--indigo); outline-offset: 2px; }
+}
+
+/* Loading states & smooth scrolling */
+html { scroll-behavior: smooth; }
+.loading { opacity: 0.6; pointer-events: none; }
+
+/* Print styles */
+@media print {
+    .sidebar, .topbar, .mobile-bar { display: none !important; }
+    body { background: white !important; color: black !important; }
+    .glass-card { box-shadow: none !important; border: 1px solid #ccc !important; }
+}

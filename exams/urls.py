@@ -17,6 +17,7 @@ urlpatterns = [
 
     # Instructor
     path('instructor/', views.instructor_dashboard, name='instructor_dashboard'),
+    path('instructor/upload-questions/', views.upload_questions, name='upload_questions'),
     path('instructor/exam/create/', views.create_exam, name='create_exam'),
     path('instructor/exam/<int:pk>/manage/', views.manage_exam, name='manage_exam'),
     path('instructor/exam/<int:pk>/delete/', views.delete_exam, name='delete_exam'),
